@@ -28,6 +28,7 @@ import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.Parser.Result;
 import org.netbeans.modules.parsing.spi.SourceModificationEvent;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 
 /**
@@ -87,7 +88,8 @@ public class GoloParser extends Parser {
                 }
             };
             goloParser = compiler.initParser(reader);
-            compilationUnit = compiler.parse(goloParser);
+            FileObject file = snapshot.getSource().getFileObject();
+            compilationUnit = compiler.parse(file == null ? "source code" : FileUtil.getFileDisplayName(file), goloParser);
             module = compiler.check(compilationUnit);
         }
         catch(GoloCompilationException e) {
