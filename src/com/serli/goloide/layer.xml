@@ -6,6 +6,7 @@
         <folder name="text">
             <folder name="x-golo">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.serli.goloide.Bundle"/>
+                <folder name="FoldManager"/>
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">
