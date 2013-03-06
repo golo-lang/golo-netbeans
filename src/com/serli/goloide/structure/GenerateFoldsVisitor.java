@@ -182,6 +182,14 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTMatch node, Object data) {
+    String foldTypeName = "codeblocks";
+    Map<String, List<OffsetRange>> folds = (Map<String, List<OffsetRange>>) data;
+    List<OffsetRange> codeblocksFolds = folds.get(foldTypeName);
+    if (codeblocksFolds == null) {
+        codeblocksFolds = new ArrayList<>();
+        folds.put(foldTypeName, codeblocksFolds);
+    }
+    codeblocksFolds.add(new OffsetRange(node.jjtGetFirstToken().next.startOffset, node.jjtGetLastToken().endOffset));
     node.childrenAccept(this, data);
     return data;
   }
