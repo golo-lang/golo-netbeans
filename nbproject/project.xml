@@ -188,8 +188,8 @@
             </module-dependencies>
             <public-packages/>
             <class-path-extension>
-                <runtime-relative-path>ext/gololang-r0-SNAPSHOT.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/gololang-r0-SNAPSHOT.jar</binary-origin>
+                <runtime-relative-path>ext/golo-0-SNAPSHOT.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/golo-0-SNAPSHOT.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
