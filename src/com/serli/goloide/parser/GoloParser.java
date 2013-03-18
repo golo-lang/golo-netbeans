@@ -4,6 +4,7 @@ import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import fr.insalyon.citi.golo.compiler.GoloCompiler;
 import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
 import fr.insalyon.citi.golo.compiler.parser.GoloParserTokenManager;
 import fr.insalyon.citi.golo.compiler.parser.IdeJavaCharStream;
 import fr.insalyon.citi.golo.compiler.parser.JavaCharStream;
@@ -93,13 +94,14 @@ public class GoloParser extends Parser {
             module = compiler.check(compilationUnit);
         }
         catch(GoloCompilationException e) {
+          if (e.getProblems().isEmpty()) {
             String key;
             String displayName;
             String description;
             FileObject fileObject = snapshot.getSource().getFileObject();
             int start = 0;
             int end = 0;
-            
+
             Throwable t = e.getCause();
             if (t instanceof ParseException) {
                 ParseException pe = (ParseException) t;
@@ -111,8 +113,31 @@ public class GoloParser extends Parser {
                 start = goloParser.token.startOffset;
                 end = goloParser.token.endOffset;
             }
-            key = displayName = description = e.getMessage();
+            if (t != null) {
+              key = displayName = description = e.getMessage();
+            }
+            else {
+              key = displayName = description = e.getMessage();
+            }
+
             errors.add(new DefaultError(key, displayName, description, fileObject, start, end, Severity.ERROR));
+          }
+          else {
+            for (GoloCompilationException.Problem p : e.getProblems()) {
+              errors.add(new DefaultError(p.getDescription(), p.getDescription(), p.getDescription(), 
+                  snapshot.getSource().getFileObject(), 
+                  ((GoloASTNode)p.getSource()).jjtGetFirstToken().startOffset, 
+                  ((GoloASTNode)p.getSource()).jjtGetLastToken().endOffset, 
+                  Severity.ERROR));
+            }
+          }
+        }
+        for (ParseException e : goloParser.parseErrors) {
+            errors.add(new DefaultError(e.getMessage(), e.getMessage(), e.getMessage(), 
+                snapshot.getSource().getFileObject(), 
+                e.currentToken.startOffset, 
+                e.currentToken.endOffset, 
+                Severity.ERROR));
         }
     }
 

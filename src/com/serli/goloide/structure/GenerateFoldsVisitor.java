@@ -217,4 +217,9 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
     node.childrenAccept(this, data);
     return data;
   }
+
+  @Override
+  public Object visit(ASTerror ast, Object o) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
 }
