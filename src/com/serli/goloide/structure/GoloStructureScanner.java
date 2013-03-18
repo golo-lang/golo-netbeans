@@ -47,7 +47,11 @@ public class GoloStructureScanner implements StructureScanner {
 
     @Override
     public List<? extends StructureItem> scan(ParserResult pr) {
-        return new ArrayList<>();
+      List<? extends StructureItem>  list = new ArrayList<>();
+      GenerateStructureVisitor visitor = new GenerateStructureVisitor(pr.getSnapshot().getSource());
+      GoloParser.GoloParserResult result = (GoloParser.GoloParserResult) pr;
+      visitor.visit(result.getCompilationUnit(), list);
+      return list;
     }
 
     @Override
