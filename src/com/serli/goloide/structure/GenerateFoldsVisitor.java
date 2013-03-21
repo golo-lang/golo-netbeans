@@ -151,7 +151,7 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
         codeblocksFolds = new ArrayList<>();
         folds.put(foldTypeName, codeblocksFolds);
     }
-    codeblocksFolds.add(new OffsetRange(node.jjtGetFirstToken().previousToken.startOffset, node.jjtGetLastToken().next.endOffset));
+    codeblocksFolds.add(new OffsetRange(node.jjtGetFirstToken().startOffset, node.jjtGetLastToken().endOffset));
     node.childrenAccept(this, data);
     return data;
   }
@@ -221,5 +221,11 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTerror ast, Object o) {
     throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public Object visit(ASTToplevelDeclaration node, Object data) {
+    node.childrenAccept(this, data);
+    return data;
   }
 }

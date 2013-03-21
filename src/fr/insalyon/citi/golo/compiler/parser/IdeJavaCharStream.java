@@ -8,7 +8,6 @@ import java.io.Reader;
  * @author david
  */
 public class IdeJavaCharStream extends JavaCharStream implements GoloParserTokenManager.TokenCompleter {
-    Token lastToken = null;
     private int currentOffset = 0;
     private int tokenStart = 0;
 
@@ -49,8 +48,6 @@ public class IdeJavaCharStream extends JavaCharStream implements GoloParserToken
     public void completeToken(Token token) {
         token.startOffset = tokenStart;
         token.endOffset = currentOffset;
-        token.previousToken = lastToken;
-        lastToken = token;
     }
 
 }

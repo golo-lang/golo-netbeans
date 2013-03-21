@@ -46,6 +46,12 @@ class GenerateStructureVisitor implements GoloParserVisitor {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Override
+  public Object visit(ASTToplevelDeclaration node, Object data) {
+    node.childrenAccept(this, data);
+    return data;
+  }
+
   static interface ItemCreator<NodeType extends GoloASTNode> {
     StructureItem create(NodeType node, List<? extends StructureItem> childrenItems);
   }
