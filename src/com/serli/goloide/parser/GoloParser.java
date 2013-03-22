@@ -50,94 +50,80 @@ public class GoloParser extends Parser {
         Reader reader = new StringReader(snapshot.getText().toString ());
         errors.clear();
 
-        try {
-            GoloCompiler compiler = new GoloCompiler() {
-                @Override
-                protected fr.insalyon.citi.golo.compiler.parser.GoloParser createGoloParser(final Reader sourceReader) {
-                    final IdeJavaCharStream javaCharStream = new IdeJavaCharStream(sourceReader);
-                    final GoloParserTokenManager tokenManager = new GoloParserTokenManager(javaCharStream);
-                    tokenManager.tokenCompleter = javaCharStream;
-                    
+        GoloCompiler compiler = new GoloCompiler() {
+            @Override
+            protected fr.insalyon.citi.golo.compiler.parser.GoloParser createGoloParser(final Reader sourceReader) {
+                final IdeJavaCharStream javaCharStream = new IdeJavaCharStream(sourceReader);
+                final GoloParserTokenManager tokenManager = new GoloParserTokenManager(javaCharStream);
+                tokenManager.tokenCompleter = javaCharStream;
 
-                    class GoloIdeParser extends fr.insalyon.citi.golo.compiler.parser.GoloParser {
 
-                        public GoloIdeParser() {
-                            super(tokenManager);
-                        }
-                        
-                        @Override
-                        public void ReInit(InputStream stream) {
-                            super.ReInit(stream);
-                        }
-                        @Override
-                        public void ReInit(InputStream stream, String encoding) {
-                            super.ReInit(stream, encoding);
-                        }
-                        @Override
-                        public void ReInit(Reader stream) {
-                            javaCharStream.ReInit(stream);
-                            tokenManager.ReInit(javaCharStream);
-                            super.ReInit(tokenManager);
-                        }
-                        @Override
-                        public void ReInit(GoloParserTokenManager tm) {
-                            super.ReInit(tm);
-                        }
+                class GoloIdeParser extends fr.insalyon.citi.golo.compiler.parser.GoloParser {
+
+                    public GoloIdeParser() {
+                        super(tokenManager);
                     }
-                    
-                    return new GoloIdeParser();
+
+                    @Override
+                    public void ReInit(InputStream stream) {
+                        super.ReInit(stream);
+                    }
+                    @Override
+                    public void ReInit(InputStream stream, String encoding) {
+                        super.ReInit(stream, encoding);
+                    }
+                    @Override
+                    public void ReInit(Reader stream) {
+                        javaCharStream.ReInit(stream);
+                        tokenManager.ReInit(javaCharStream);
+                        super.ReInit(tokenManager);
+                    }
+                    @Override
+                    public void ReInit(GoloParserTokenManager tm) {
+                        super.ReInit(tm);
+                    }
                 }
-            };
-            goloParser = compiler.initParser(reader);
-            FileObject file = snapshot.getSource().getFileObject();
-            compilationUnit = compiler.parse(file == null ? "source code" : FileUtil.getFileDisplayName(file), goloParser);
-            module = compiler.check(compilationUnit);
-        }
-        catch(GoloCompilationException e) {
-          if (e.getProblems().isEmpty()) {
-            String key;
-            String displayName;
-            String description;
-            FileObject fileObject = snapshot.getSource().getFileObject();
-            int start = 0;
-            int end = 0;
 
-            Throwable t = e.getCause();
-            if (t instanceof ParseException) {
-                ParseException pe = (ParseException) t;
-                start = pe.currentToken.startOffset;
-                end = pe.currentToken.endOffset;
+                return new GoloIdeParser();
             }
-            if (t instanceof TokenMgrError) {
-                TokenMgrError tme = (TokenMgrError) t;
-                start = goloParser.token.startOffset;
-                end = goloParser.token.endOffset;
-            }
-            if (t != null) {
-              key = displayName = description = e.getMessage();
-            }
-            else {
-              key = displayName = description = e.getMessage();
-            }
+        };
+        
+        FileObject file = snapshot.getSource().getFileObject();
+        String fileDisplayName = file == null ? "source code" : FileUtil.getFileDisplayName(file);
+        compiler.setExceptionBuilder(new GoloCompilationException.Builder(fileDisplayName));
+        goloParser = compiler.initParser(reader);
+        compilationUnit = compiler.parse(fileDisplayName, goloParser);
+        module = compiler.check(compilationUnit);
 
-            errors.add(new DefaultError(key, displayName, description, fileObject, start, end, Severity.ERROR));
+        for (GoloCompilationException.Problem p : compiler.getProblems()) {
+          String key = p.getType().name();
+          String displayName = p.getType().name().equals(p.getType().toString()) ? p.getDescription(): p.getType().toString();
+          String description = p.getDescription();
+          int start = 0;
+          int end = 0;
+              
+          Token token = p.getToken();
+          if (token != null) {
+            start = token.startOffset;
+            end = token.endOffset;
           }
           else {
-            for (GoloCompilationException.Problem p : e.getProblems()) {
-              errors.add(new DefaultError(p.getDescription(), p.getDescription(), p.getDescription(), 
-                  snapshot.getSource().getFileObject(), 
-                  ((GoloASTNode)p.getSource()).jjtGetFirstToken().startOffset, 
-                  ((GoloASTNode)p.getSource()).jjtGetLastToken().endOffset, 
-                  Severity.ERROR));
+            GoloASTNode node = (GoloASTNode)p.getSource();
+            if (node != null) {
+              token = node.jjtGetFirstToken();
+              if (token != null) {
+                start = token.startOffset;
+              }
+              token = node.jjtGetLastToken();
+              if (token != null) {
+                end = token.endOffset;
+              }
             }
           }
-        }
-        for (ParseException e : goloParser.parseErrors) {
-            errors.add(new DefaultError(e.getMessage(), e.getMessage(), e.getMessage(), 
-                snapshot.getSource().getFileObject(), 
-                e.currentToken.startOffset, 
-                e.currentToken.endOffset, 
-                Severity.ERROR));
+          errors.add(new DefaultError(key, displayName, description, 
+              snapshot.getSource().getFileObject(), 
+              start, end, 
+              Severity.ERROR));
         }
     }
 
