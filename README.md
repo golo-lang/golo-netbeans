@@ -1,4 +1,4 @@
 golo-netbeans
 =============
 
-NetBeans module to support the Golo language
+Netbeans module to support the Golo language
