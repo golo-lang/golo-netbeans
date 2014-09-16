@@ -83,7 +83,9 @@ public final class RunGoloFile implements ActionListener {
                 "-classpath",
                 classpath,
                 "-Dapp.name=gologolo",
-                "fr.insalyon.citi.golo.cli.MainGoloGolo",
+                "fr.insalyon.citi.golo.cli.Main",
+                "golo",
+                "--files ",
                 fileToExecute.getPath()).start();
           }
       };
