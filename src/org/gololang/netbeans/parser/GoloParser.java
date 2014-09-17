@@ -239,7 +239,7 @@ public class GoloParser extends Parser {
       int start = 0;
       int end = 0;
 
-      Token token = p.getToken();
+      Token token = p.getFirstToken();
       if (token != null) {
         start = token.startOffset;
         end = token.endOffset;

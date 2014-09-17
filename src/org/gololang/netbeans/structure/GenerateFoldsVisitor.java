@@ -76,12 +76,6 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
   }
 
   @Override
-  public Object visit(ASTPimpDeclaration node, Object data) {
-    node.childrenAccept(this, data);
-    return data;
-  }
-
-  @Override
   public Object visit(ASTFunctionDeclaration node, Object data) {
     node.childrenAccept(this, data);
     return data;
@@ -231,4 +225,40 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
     node.childrenAccept(this, data);
     return data;
   }
+
+    @Override
+    public Object visit(ASTStructDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTAugmentDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTContinue node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTBreak node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTCollectionLiteral node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTAnonymousFunctionInvocation node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
 }

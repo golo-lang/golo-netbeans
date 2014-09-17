@@ -17,36 +17,22 @@
 
 package org.gololang.netbeans.structure;
 
-import fr.insalyon.citi.golo.compiler.parser.ASTPimpDeclaration;
-import java.util.List;
-import org.netbeans.modules.csl.api.HtmlFormatter;
-import org.netbeans.modules.csl.api.StructureItem;
+import fr.insalyon.citi.golo.compiler.parser.ASTAugmentDeclaration;
+import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.parsing.api.Source;
 
 /**
  *
  * @author David Festal <david.festal@serli.com>
  */
-public class PimpStructureItem extends GoloStructureItem<ASTPimpDeclaration> {
+public final class AugmentElementHandle extends GoloElementHandle {
 
-  public PimpStructureItem(ASTPimpDeclaration node, Source source, List<? extends StructureItem> items) {
-    super(node, source, items);
+  public AugmentElementHandle(ASTAugmentDeclaration node, Source source) {
+    super(node, source);
   }
 
   @Override
-  public String getHtml(HtmlFormatter hf) {
-    return getName();
+  public ElementKind getKind() {
+    return ElementKind.CLASS;
   }
-
-  @Override
-  public GoloElementHandle createHandle(ASTPimpDeclaration node, Source source) {
-    return new PimpElementHandle(node, source);
-  }
-
-  @Override
-  public PimpElementHandle getElementHandle() {
-    return (PimpElementHandle) super.getElementHandle();
-  }
-
-  
 }
