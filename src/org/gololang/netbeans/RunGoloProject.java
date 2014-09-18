@@ -69,6 +69,7 @@ public final class RunGoloProject implements ActionListener {
   public void execute(final String javaExecutable, final String goloRootDir, final SourceGroup[] srcs) throws InterruptedException, ExecutionException {
       Callable processCallable = new Callable() {
 
+          @Override
           public Process call() throws IOException {
             File libDirFile = new File(goloRootDir, "lib");
             String classpath = "";
