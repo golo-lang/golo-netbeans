@@ -27,6 +27,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -41,7 +42,6 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
-import org.netbeans.spi.project.support.GenericSources;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -106,7 +106,10 @@ public final class RunGoloProject implements ActionListener {
             
             File mainModule = findMainModule(modules);            
             
-            return new ProcessBuilder(javaExecutable,
+            String[] args = buildArguments(
+                modules, 
+                mainModule, 
+                javaExecutable,
                 "-server",
                 "-Xms1024M",
                 "-Xmx1024M",
@@ -116,22 +119,27 @@ public final class RunGoloProject implements ActionListener {
                 "-Dapp.name=gologolo",
                 "fr.insalyon.citi.golo.cli.Main",
                 "golo",
-                "--files",
-                modulesToString(modules, mainModule)
-            ).start();
+                "--files"
+            );
+            
+            return new ProcessBuilder(args).start();
           }
-
-          private String modulesToString(List<File> modules, File mainModule) {
-              String chainedModules = "";
+ 
+          private String[] buildArguments(List<File> modules, File mainModule, String ... args) {
+              List<String> arguments = new ArrayList<>();
+              
+              arguments.addAll(Arrays.asList(args));
               
               for ( File module : modules ) {
                   if ( module != mainModule ) {
-                      chainedModules += module.getAbsolutePath() + " ";
+                      arguments.add(module.getAbsolutePath());
                   }
               }
               
-              return chainedModules + mainModule.getAbsolutePath();
-          }
+              arguments.add( mainModule.getAbsolutePath() );
+              
+              return (String[]) arguments.toArray(new String[arguments.size()]);
+          }          
           
           private File findMainModule(List<File> modules) throws FileNotFoundException {
               for ( File f : modules ) {
