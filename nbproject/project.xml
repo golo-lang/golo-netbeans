@@ -7,6 +7,23 @@
             <standalone/>
             <module-dependencies>
                 <dependency>
+                    <code-name-base>org.apache.xmlrpc</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>3.0.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.api.annotations.common</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.23.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.api.java</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -49,6 +66,15 @@
                     <run-dependency>
                         <release-version>3</release-version>
                         <specification-version>1.63.1.5.20.32</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.editor.completion</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.39.2.2</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -130,6 +156,24 @@
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.55.1.6</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.projectapi</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.57.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.projectuiapi</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.76.1.8</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -215,12 +259,12 @@
             </module-dependencies>
             <public-packages/>
             <class-path-extension>
-                <runtime-relative-path>ext/golo-0-SNAPSHOT.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/golo-0-SNAPSHOT.jar</binary-origin>
+                <runtime-relative-path>ext/golo-1.0.0.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/golo-1.0.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/asm-4.1.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/asm-4.1.jar</binary-origin>
+                <runtime-relative-path>ext/asm-4.2.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/asm-4.2.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
