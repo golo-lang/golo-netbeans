@@ -20,10 +20,14 @@ package org.gololang.netbeans.project;
 import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.event.ChangeListener;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
 import org.netbeans.spi.project.ProjectState;
+import org.netbeans.spi.project.support.GenericSources;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -39,9 +43,14 @@ public class GoloProject implements Project {
     private final ProjectState state;
     private Lookup lkp;
     
+    public static final String GOLO_ICON = "org/gololang/netbeans/golo_icon_16px.png";
+    
     GoloProject(FileObject dir, ProjectState state) {
         this.projectDir = dir;
         this.state = state;
+        
+        Icon icon = new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
+        GenericSources.group(this, dir, "golo", "golo", icon, icon);
     }
 
     @Override
@@ -54,7 +63,8 @@ public class GoloProject implements Project {
         if (lkp == null) {
             lkp = Lookups.fixed(new Object[]{
             
-                new Info()
+                new Info(),
+                new GoloSources()
             
             });
         }
@@ -94,6 +104,69 @@ public class GoloProject implements Project {
         @Override
         public Project getProject() {
             return GoloProject.this;
+        }
+    }
+    
+    public class GoloSources implements Sources {
+    
+        static final String TYPE_GENERIC = "golo";    
+
+        @Override
+        public SourceGroup[] getSourceGroups(String string) {
+            return new SourceGroup[]{
+                new SourceGroup() {
+
+                @StaticResource()
+                public static final String GOLO_ICON = "org/gololang/netbeans/golo_icon_16px.png";
+                    
+                @Override
+                public FileObject getRootFolder() {
+                    return getProjectDirectory();
+                }
+
+                @Override
+                public String getName() {
+                    return "golo";
+                }
+
+                @Override
+                public String getDisplayName() {
+                    return "Golo";
+                }
+
+                @Override
+                public Icon getIcon(boolean bln) {
+                    return new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
+                }
+
+                @Override
+                public boolean contains(FileObject comparedFo) {
+                    for ( FileObject fo : getRootFolder().getChildren() ) {
+                        if ( fo == comparedFo ) {
+                            return true;
+                        }    
+                    }
+                    return false;
+                }
+
+                @Override
+                public void addPropertyChangeListener(PropertyChangeListener pl) {
+                }
+
+                @Override
+                public void removePropertyChangeListener(PropertyChangeListener pl) {
+                }
+                    
+                }
+            };
+        }
+
+        @Override
+        public void addChangeListener(ChangeListener cl) {
+        }
+
+        @Override
+        public void removeChangeListener(ChangeListener cl) {
         }
     }
 }

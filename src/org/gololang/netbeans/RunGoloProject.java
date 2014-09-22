@@ -41,6 +41,7 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.spi.project.support.GenericSources;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -115,9 +116,8 @@ public final class RunGoloProject implements ActionListener {
                 "-Dapp.name=gologolo",
                 "fr.insalyon.citi.golo.cli.Main",
                 "golo",
-                "--files ",
-                modulesToString(modules, mainModule),
-                mainModule.getAbsolutePath()
+                "--files",
+                modulesToString(modules, mainModule)
             ).start();
           }
 
@@ -130,7 +130,7 @@ public final class RunGoloProject implements ActionListener {
                   }
               }
               
-              return chainedModules;
+              return chainedModules + mainModule.getAbsolutePath();
           }
           
           private File findMainModule(List<File> modules) throws FileNotFoundException {
@@ -186,9 +186,9 @@ public final class RunGoloProject implements ActionListener {
         SourceGroup[] sg;
                 
         try {
-            final Project p = ProjectManager.getDefault().findProject(projectFolder);
+            final Project p = ProjectManager.getDefault().findProject(projectFolder);            
             final Sources sources = ProjectUtils.getSources(p);
-            sg = sources.getSourceGroups("java");
+            sg = sources.getSourceGroups("golo");
         } catch (IOException | IllegalArgumentException ex) {
             sg = new SourceGroup[0];
         }
