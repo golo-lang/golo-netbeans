@@ -186,86 +186,85 @@ public class GoloProject implements Project {
     
     class CustomerProjectLogicalView implements LogicalViewProvider {
 
-    @StaticResource()
-    public static final String GOLO_ICON = "org/gololang/netbeans/golo_icon_16px.png";
+        @StaticResource()
+        public static final String GOLO_ICON = "org/gololang/netbeans/golo_icon_16px.png";
 
-    private final GoloProject project;
+        private final GoloProject project;
 
-    public CustomerProjectLogicalView(GoloProject project) {
-        this.project = project;
-    }
-
-    @Override
-    public Node createLogicalView() {
-        try {
-            //Obtain the project directory's node:
-            FileObject projectDirectory = project.getProjectDirectory();
-            DataFolder projectFolder = DataFolder.findFolder(projectDirectory);
-            Node nodeOfProjectFolder = projectFolder.getNodeDelegate();
-            
-            //filter golo.project
-            Node filteredRootNode = new FilterNode(nodeOfProjectFolder, new ProxyChildren(nodeOfProjectFolder));
-            
-            //Decorate the project directory's node:
-            return new ProjectNode(filteredRootNode, project);
-        } catch (DataObjectNotFoundException donfe) {
-            Exceptions.printStackTrace(donfe);
-            //Fallback-the directory couldn't be created -
-            //read-only filesystem or something evil happened
-            return new AbstractNode(Children.LEAF);
-        }
-    }
-
-    private final class ProjectNode extends FilterNode {
-
-        final GoloProject project;
-
-        public ProjectNode(Node node, GoloProject project) 
-            throws DataObjectNotFoundException {
-            super(node,
-                new FilterNode.Children(node),
-                new ProxyLookup(
-                    new Lookup[]{
-                        Lookups.singleton(project),
-                        node.getLookup()
-                    }
-                )
-            );
+        public CustomerProjectLogicalView(GoloProject project) {
             this.project = project;
         }
 
         @Override
-        public Action[] getActions(boolean arg0) {
-            return new Action[]{
-                CommonProjectActions.newFileAction(),
-                CommonProjectActions.copyProjectAction(),
-                CommonProjectActions.deleteProjectAction(),
-                CommonProjectActions.closeProjectAction()
-            };
+        public Node createLogicalView() {
+            try {
+                //Obtain the project directory's node:
+                FileObject projectDirectory = project.getProjectDirectory();
+                DataFolder projectFolder = DataFolder.findFolder(projectDirectory);
+                Node nodeOfProjectFolder = projectFolder.getNodeDelegate();
+
+                //filter golo.project
+                Node filteredRootNode = new FilterNode(nodeOfProjectFolder, new ProxyChildren(nodeOfProjectFolder));
+
+                //Decorate the project directory's node:
+                return new ProjectNode(filteredRootNode, project);
+            } catch (DataObjectNotFoundException donfe) {
+                Exceptions.printStackTrace(donfe);
+                //Fallback-the directory couldn't be created -
+                //read-only filesystem or something evil happened
+                return new AbstractNode(Children.LEAF);
+            }
+        }
+
+        private final class ProjectNode extends FilterNode {
+
+            final GoloProject project;
+
+            public ProjectNode(Node node, GoloProject project) 
+                throws DataObjectNotFoundException {
+                super(node,
+                    new FilterNode.Children(node),
+                    new ProxyLookup(
+                        new Lookup[]{
+                            Lookups.singleton(project),
+                            node.getLookup()
+                        }
+                    )
+                );
+                this.project = project;
+            }
+
+            @Override
+            public Action[] getActions(boolean arg0) {
+                return new Action[]{
+                    CommonProjectActions.newFileAction(),
+                    CommonProjectActions.copyProjectAction(),
+                    CommonProjectActions.deleteProjectAction(),
+                    CommonProjectActions.closeProjectAction()
+                };
+            }
+
+            @Override
+            public Image getIcon(int type) {
+                return ImageUtilities.loadImage(GOLO_ICON);
+            }
+
+            @Override
+            public Image getOpenedIcon(int type) {
+                return getIcon(type);
+            }
+
+            @Override
+            public String getDisplayName() {
+                return project.getProjectDirectory().getName();
+            }
+
         }
 
         @Override
-        public Image getIcon(int type) {
-            return ImageUtilities.loadImage(GOLO_ICON);
+        public Node findPath(Node root, Object target) {
+            //leave unimplemented for now
+            return null;
         }
-
-        @Override
-        public Image getOpenedIcon(int type) {
-            return getIcon(type);
-        }
-
-        @Override
-        public String getDisplayName() {
-            return project.getProjectDirectory().getName();
-        }
-
     }
-
-    @Override
-    public Node findPath(Node root, Object target) {
-        //leave unimplemented for now
-        return null;
-    }
-
-}
 }
