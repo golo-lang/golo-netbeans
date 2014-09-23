@@ -82,6 +82,12 @@ class GenerateStructureVisitor implements GoloParserVisitor {
         return data;
     }
 
+    @Override
+    public Object visit(ASTDecoratorDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
   static interface ItemCreator<NodeType extends GoloASTNode> {
     StructureItem create(NodeType node, List<? extends StructureItem> childrenItems);
   }

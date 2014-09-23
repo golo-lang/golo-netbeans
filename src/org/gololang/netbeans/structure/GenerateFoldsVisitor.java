@@ -261,4 +261,10 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
         node.childrenAccept(this, data);
         return data;
     }
+
+    @Override
+    public Object visit(ASTDecoratorDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
 }
