@@ -23,6 +23,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.event.ChangeListener;
+import org.gololang.netbeans.project.nodes.ProxyChildren;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
@@ -201,8 +202,12 @@ public class GoloProject implements Project {
             FileObject projectDirectory = project.getProjectDirectory();
             DataFolder projectFolder = DataFolder.findFolder(projectDirectory);
             Node nodeOfProjectFolder = projectFolder.getNodeDelegate();
+            
+            //filter golo.project
+            Node filteredRootNode = new FilterNode(nodeOfProjectFolder, new ProxyChildren(nodeOfProjectFolder));
+            
             //Decorate the project directory's node:
-            return new ProjectNode(nodeOfProjectFolder, project);
+            return new ProjectNode(filteredRootNode, project);
         } catch (DataObjectNotFoundException donfe) {
             Exceptions.printStackTrace(donfe);
             //Fallback-the directory couldn't be created -
