@@ -183,6 +183,14 @@ public final class RunGoloProject implements ActionListener {
               descriptor, "gologolo command");
 
       Future<Integer> task = service.run();
+      
+      try {
+          task.get();
+      }
+      catch(InterruptedException | ExecutionException e) {
+          JOptionPane.showMessageDialog(null, "Golo could not execute and returned the following message :\n" + e, "Golo Error", JOptionPane.ERROR_MESSAGE);
+      }
+      
       return;
     }
   
