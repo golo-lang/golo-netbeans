@@ -33,6 +33,10 @@ There are several ways to run a Golo project :
 * Menu bar : "Run > Run Golo Project"
 * Toolbar : click on the Golo logo beside the "Build" button.
 
+###Build plugin
+
+Open the plugin in Netbeans, right-click on the project and choose "Create NBM". You will then find the .nbm in "/build".
+
 
 ##Troubleshooting
 
