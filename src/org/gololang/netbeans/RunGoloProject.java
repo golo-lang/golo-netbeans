@@ -17,15 +17,12 @@
 
 package org.gololang.netbeans;
 
-import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,11 +69,9 @@ import org.openide.util.NbPreferences;
 public final class RunGoloProject implements ActionListener {
 
   private final DataObject context;
-  private final GoloClassLoader classloader;
     
   public RunGoloProject(DataObject context) {
     this.context = context;
-    this.classloader = new GoloClassLoader();
   }
 
   public void execute(final String javaExecutable, final String goloRootDir, final SourceGroup[] srcs) throws InterruptedException, ExecutionException {
@@ -99,13 +94,18 @@ public final class RunGoloProject implements ActionListener {
             }
             
             List<File> modules = new ArrayList<>();
+            String mainModule = null;
             
             for ( SourceGroup src : srcs ) {
                 modules.addAll(findGoloScripts(src.getRootFolder().getPath(), new ArrayList<File>()));
+                mainModule = findMainModule(new FileObject[] {src.getRootFolder()});            
             }
             
-            File mainModule = findMainModule(modules);            
-            
+            if ( mainModule == null ) {
+                JOptionPane.showMessageDialog(null, "Please create a main method", "Golo Error", JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+              
             String[] args = buildArguments(
                 modules, 
                 mainModule, 
@@ -125,36 +125,40 @@ public final class RunGoloProject implements ActionListener {
             return new ProcessBuilder(args).start();
           }
  
-          private String[] buildArguments(List<File> modules, File mainModule, String ... args) {
+          private String[] buildArguments(List<File> modules, String mainModule, String ... args) {
               List<String> arguments = new ArrayList<>();
               
               arguments.addAll(Arrays.asList(args));
               
               for ( File module : modules ) {
-                  if ( module != mainModule ) {
+                  if ( !module.getPath().equals(mainModule) ) {
                       arguments.add(module.getAbsolutePath());
                   }
               }
               
-              arguments.add( mainModule.getAbsolutePath() );
+              arguments.add( mainModule );
               
               return (String[]) arguments.toArray(new String[arguments.size()]);
           }          
           
-          private File findMainModule(List<File> modules) throws FileNotFoundException {
-              for ( File f : modules ) {
-                    Class<?> module = classloader.load(
-                          f.getName(),
-                          new FileInputStream(f.getAbsoluteFile())
-                     );
-                    Method[] methods = module.getDeclaredMethods();           
-                    for ( Method m : methods ) {
-                        if ( m.getName().equals("main") ) {
-                            return f;
-                        }
-                    }
-              }
-              JOptionPane.showMessageDialog(null, "Please create a main method", "Golo Error", JOptionPane.ERROR_MESSAGE);
+          private String findMainModule(FileObject[] modules) throws FileNotFoundException, IOException {             
+              for ( FileObject sg : modules ) {
+                  if ( sg.isFolder() ) {
+                      String res = findMainModule( sg.getChildren() );
+                      if ( res != null ) {
+                          return res;
+                      }
+                  }
+                  else {
+                      for ( String line : sg.asLines() ) {
+                          if ( line.contains(" main ") ) {
+                              if ( line.contains("function") ) {
+                                  return sg.getPath();
+                              }
+                          }
+                      }
+                  }
+              }    
               return null;
           }
           
