@@ -43,17 +43,22 @@ public class FunctionCompletionItem implements CompletionItem {
     private static final Color fieldColor = Color.decode("0x0000B2");
     private final int caretOffset;
 
-    public FunctionCompletionItem(String text, int caretOffset) {
+    private final int dotOffset;
+
+    public FunctionCompletionItem(String text, int dotOffset, int caretOffset) {
         this.text = text;
+        this.dotOffset = dotOffset;
         this.caretOffset = caretOffset;
     }
 
     @Override
-    public void defaultAction(JTextComponent jtc) {
+    public void defaultAction(JTextComponent component) {
         try {
-            StyledDocument doc = (StyledDocument) jtc.getDocument();
-            doc.insertString(caretOffset, text, null);
-            //This statement will close the code completion box:
+            StyledDocument doc = (StyledDocument) component.getDocument();
+            //Here we remove the characters starting at the start offset
+            //and ending at the point where the caret is currently found:
+            doc.remove(dotOffset, caretOffset-dotOffset);
+            doc.insertString(dotOffset, text, null);
             Completion.get().hideAll();
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
@@ -70,10 +75,8 @@ public class FunctionCompletionItem implements CompletionItem {
     }
 
     @Override
-    public void render(Graphics g, Font defaultFont, Color defaultColor,
-            Color backgroundColor, int width, int height, boolean selected) {
-        CompletionUtilities.renderHtml(fieldIcon, text, null, g, defaultFont,
-                (selected ? Color.white : fieldColor), width, height, selected);
+    public void render(Graphics g, Font defaultFont, Color defaultColor, Color backgroundColor, int width, int height, boolean selected) {
+        CompletionUtilities.renderHtml(fieldIcon, text, null, g, defaultFont, (selected ? Color.white : fieldColor), width, height, selected);
     }
 
     @Override
