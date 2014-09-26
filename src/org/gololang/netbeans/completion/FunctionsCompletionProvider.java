@@ -66,6 +66,7 @@ public class FunctionsCompletionProvider implements CompletionProvider {
                 //Iterate through the available locales
                 //and assign each country display name
                 //to a CompletionResultSet:
+                Locale[] locales = Locale.getAvailableLocales();
                 Set<GoloFunction> functions = FileElementsManager.getInstance().getFunctions();
                 for (GoloFunction fn : functions) {
                     if ( !fn.getName().startsWith("__$$_") ) {
