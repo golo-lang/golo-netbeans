@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
 import org.gololang.netbeans.lexer.GoloTokenId;
 import org.gololang.netbeans.parser.GoloParser;
@@ -58,7 +59,10 @@ public class GoloStructureScanner implements StructureScanner {
         
         // Comments
         if (pr instanceof GoloParser.GoloParserResult) {
-            TokenHierarchy<Document> hi = TokenHierarchy.get(pr.getSnapshot().getSource().getDocument(true));
+            final Document document = pr.getSnapshot().getSource().getDocument(true);
+            ((AbstractDocument) document).readLock();
+            try {
+            TokenHierarchy<Document> hi = TokenHierarchy.get(document);
             TokenSequence<GoloTokenId> ts = (TokenSequence<GoloTokenId>) hi.tokenSequence();
             int startComment = -1;
             int stopComment = -1;
@@ -105,6 +109,9 @@ public class GoloStructureScanner implements StructureScanner {
             GoloParser.GoloParserResult result = (GoloParser.GoloParserResult) pr;
             GenerateFoldsVisitor visitor = new GenerateFoldsVisitor();
             visitor.visit(result.getCompilationUnit(), folds);
+            } finally {
+                ((AbstractDocument) document).readUnlock();
+            }
         }
         return folds;
     }
