@@ -53,6 +53,8 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                 case "NEWLINE" : 
                     category = "whitespace";
                     break;
+                    
+                case "ESCAPE" :
                 case "MODULE" :
                 case "IMPORT" : 
                 case "FUNCTION" : 
@@ -73,8 +75,14 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                 case "MATCH" :
                 case "THEN" :
                 case "OTHERWISE" :
-                case "PIMP" :
-                case "NUL" :
+                case "AUGMENT" :
+                case "COLL_START" :                
+                case "NULL" :
+                case "BREAK" :
+                case "CONTINUE" :
+                case "STRUCT" :
+                case "INVOCATION" : 
+                case "DECORATOR" :
                 case "TRUE" :
                 case "FALSE" :
                 case "VAR" :
@@ -90,6 +98,7 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                     break;
 
                 case "IDENTIFIER" :
+                case "FUNREF" :
                 case "CLASSREF" :
                     category = "identifier";
                     break;
@@ -100,14 +109,18 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                     category = "operator";
                     break;
 
+                case "MULTI_STRING" :                    
                 case "STRING" :
                     category = "string";
                     break;
 
+                case "LETTER" :
+                case "ID_REST" :
                 case "CHAR" :
                     category = "character";
                     break;
 
+                case "DOCUMENTATION" :
                 case "COMMENT" :
                     category = "comment";
                     break;
