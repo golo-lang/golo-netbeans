@@ -42,17 +42,12 @@ class GoloLexer implements Lexer<GoloTokenId> {
 
     @Override
     public org.netbeans.api.lexer.Token<GoloTokenId> nextToken() {
-      try {
         Token token = goloParserTokenManager.getNextToken();
         if (info.input().readLength() < 1) {
             return null;
         }
-        return info.tokenFactory().createToken(GoloLanguageHierarchy.getToken(token.kind));
-      }
-      catch(TokenMgrError e) {
-        e.printStackTrace();
-      }
-      return null;
+        GoloTokenId tokenId = GoloLanguageHierarchy.getToken(token.kind);
+        return info.tokenFactory().createToken( tokenId );     
     }
 
     @Override

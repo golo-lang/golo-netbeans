@@ -52,6 +52,42 @@ class GenerateStructureVisitor implements GoloParserVisitor {
     return data;
   }
 
+    @Override
+    public Object visit(ASTStructDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTContinue node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTBreak node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTCollectionLiteral node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTAnonymousFunctionInvocation node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTDecoratorDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
   static interface ItemCreator<NodeType extends GoloASTNode> {
     StructureItem create(NodeType node, List<? extends StructureItem> childrenItems);
   }
@@ -82,11 +118,11 @@ class GenerateStructureVisitor implements GoloParserVisitor {
   }
 
   @Override
-  public Object visit(ASTPimpDeclaration node, Object data) {
-    processNode(new ItemCreator<ASTPimpDeclaration>() {
+  public Object visit(ASTAugmentDeclaration node, Object data) {
+    processNode(new ItemCreator<ASTAugmentDeclaration>() {
       @Override
-      public StructureItem create(ASTPimpDeclaration node, List<? extends StructureItem> childrenItems) {
-        return new PimpStructureItem(node, source, childrenItems);
+      public StructureItem create(ASTAugmentDeclaration node, List<? extends StructureItem> childrenItems) {
+        return new AugmentStructureItem(node, source, childrenItems);
       }
     }, node, data);
     return data;
