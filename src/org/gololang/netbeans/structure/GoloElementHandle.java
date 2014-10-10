@@ -38,7 +38,7 @@ public abstract class GoloElementHandle implements ElementHandle {
   protected Source source;
 
   public GoloElementHandle(GoloASTNode node, Source source) {
-    assert(node instanceof NamedNode);
+//    assert(node instanceof NamedNode);
     this.node = node;
     this.source = source;
   }

@@ -169,12 +169,18 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
 
     @Override
     protected synchronized Collection<GoloTokenId> createTokenIds() {
+        return getTokens();
+    }
+
+    public static synchronized Collection<GoloTokenId> getTokens() {
         if (tokens == null) {
             init();
         }
         return tokens;
     }
 
+    
+    
     @Override
     protected synchronized Lexer<GoloTokenId> createLexer(LexerRestartInfo<GoloTokenId> info) {
         return new GoloLexer(info);
