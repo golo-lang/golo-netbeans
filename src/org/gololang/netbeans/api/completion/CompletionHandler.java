@@ -44,13 +44,15 @@ public class CompletionHandler implements CodeCompletionHandler {
     public CodeCompletionResult complete(CodeCompletionContext completionContext) {
         ParserResult parserResult = completionContext.getParserResult();
         String prefix = completionContext.getPrefix();
-
+        
         // Documentation says that @NonNull is return from getPrefix() but it's not true
         // Invoking "this.^" makes the return value null
         if (prefix == null) {
             prefix = "";
         }
-
+        if (completionContext.getQueryType() == QueryType.NONE) {
+            return CodeCompletionResult.NONE;
+        }
         int lexOffset = completionContext.getCaretOffset();
 //        int astOffset = ASTUtils.getAstOffset(parserResult, lexOffset);
         int anchor = lexOffset - prefix.length();
@@ -66,6 +68,7 @@ public class CompletionHandler implements CodeCompletionHandler {
             CompletionContext context = new CompletionContext(parserResult, prefix, anchor, lexOffset, doc);
             collector.completeKeywords(context);
             collector.completeMethods(context);
+            collector.completeMethodsFromImports(context);
             List<CompletionProposal> listCompletionProposal = collector.getProposals();
             return new DefaultCompletionResult(listCompletionProposal, false);
         } finally {
@@ -93,10 +96,11 @@ public class CompletionHandler implements CodeCompletionHandler {
         char c = typedText.charAt(0);
 
         if (c == '.') {
-            return QueryType.COMPLETION;
+            // no proposals after '.' because it's not smart for instance
+            return QueryType.NONE;
         }
 
-        return QueryType.NONE;
+        return QueryType.COMPLETION;
     }
 
     @Override

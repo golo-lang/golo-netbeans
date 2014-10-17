@@ -211,4 +211,16 @@ public class CompletionItem extends DefaultCompletionProposal {
         }
     }
     
+    public static class SimpleElementItem extends CompletionItem {
+
+        public SimpleElementItem(ElementHandle element, int anchorOffset) {
+            super(element, anchorOffset);
+        }
+        
+        @Override
+        public ImageIcon getIcon() {
+            return new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
+        }
+    }
+    
 }

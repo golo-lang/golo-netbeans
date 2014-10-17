@@ -29,12 +29,13 @@ public class ProposalsCollector {
     private List<CompletionProposal> proposals;
     private final KeywordCompletion keywordCompletion;
     private final FunctionCompletion functionCompletion;
-    
+    private final ImportCompletion importMethodCompletion;
     
     public ProposalsCollector() {
         proposals = new ArrayList<>();
         keywordCompletion = new KeywordCompletion();
         functionCompletion = new FunctionCompletion();
+        importMethodCompletion = new ImportCompletion();
     }
     
     public void completeKeywords(CompletionContext completionRequest) {
@@ -47,6 +48,10 @@ public class ProposalsCollector {
     
     public List<CompletionProposal> getProposals() {
         return proposals;
+    }
+
+    public void completeMethodsFromImports(CompletionContext context) {
+        importMethodCompletion.complete(proposals, context);
     }
     
     
