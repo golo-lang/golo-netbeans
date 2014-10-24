@@ -32,26 +32,20 @@ import static java.lang.reflect.Modifier.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.gololang.netbeans.api.completion.util.CompletionContext;
 import org.gololang.netbeans.parser.GoloParser.GoloParserResult;
-import org.gololang.netbeans.structure.SimpleGoloElementHandle;
-import org.netbeans.api.java.classpath.ClassPath;
+import org.gololang.netbeans.structure.ImportedFieldElementHandle;
+import org.gololang.netbeans.structure.ImportedMethodElementHandle;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.csl.api.CompletionProposal;
-import org.netbeans.modules.csl.api.ElementKind;
-import org.netbeans.modules.csl.api.Modifier;
-import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -62,7 +56,7 @@ import org.openide.util.Exceptions;
  */
 public class ImportCompletion {
 
-    void complete(List<CompletionProposal> proposals, CompletionContext context) {
+    void complete(List<CompletionProposal> proposals, CompletionContext context, int anchor) {
         GoloParserResult parserResult = (GoloParserResult) context.getParserResult();
         String filter = context.getPrefix();
         List<String> classpath = Arrays.asList(".");
@@ -96,15 +90,13 @@ public class ImportCompletion {
                     try {
                         importClass = Class.forName(importClassName, true, classLoader);
                         final FileObject goloFile = goloSources.get(importClass);
+                        boolean isGoloElement = goloFile != null;
                         Method[] declaredMethods = importClass.getDeclaredMethods();
                         for (Method method : declaredMethods) {
                             if (!method.isSynthetic()) {
-                                if (isStatic(method.getModifiers())) {
+                                if (!isPrivate(method.getModifiers()) && isStatic(method.getModifiers())) {
                                     if (method.getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                                        Set<Modifier> modifiers = new HashSet<>();
-                                        modifiers.add(toModifier(method.getModifiers()));
-
-                                        proposals.add(new CompletionItem.SimpleElementItem(new SimpleGoloElementHandle(goloFile, method.getName(), ElementKind.METHOD, modifiers), -1));
+                                        proposals.add(new CompletionItem.SimpleMethodElementItem(new ImportedMethodElementHandle(goloFile, importClassName, method), anchor, isGoloElement));
                                     }
                                 }
                             }
@@ -112,43 +104,21 @@ public class ImportCompletion {
                         Field[] declaredFields = importClass.getDeclaredFields();
                         for (Field field : declaredFields) {
                             if (!field.isSynthetic()) {
-                                if (isStatic(field.getModifiers())) {
+                                if (isPublic(field.getModifiers()) && isStatic(field.getModifiers())) {
                                     if (field.getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                                        Set<Modifier> modifiers = new HashSet<>();
-                                        modifiers.add(toModifier(field.getModifiers()));
-
-                                        proposals.add(new CompletionItem.SimpleElementItem(new SimpleGoloElementHandle(goloFile, field.getName(), ElementKind.FIELD, modifiers), -1));
+                                        proposals.add(new CompletionItem.SimpleFieldElementItem(new ImportedFieldElementHandle(goloFile, importClassName, field), anchor, isGoloElement));
                                     }
                                 }
                             }
                         }
                     } catch (ClassNotFoundException expected) {
-                        Exceptions.printStackTrace(expected);
+//                        Exceptions.printStackTrace(expected);
                     }
                 }
             }
         } catch (Throwable ex) {
-            Exceptions.printStackTrace(ex);
+//            Exceptions.printStackTrace(ex);
         }
-    }
-
-    private static Modifier toModifier(int modifier) {
-        if (isStatic(modifier)) {
-            return Modifier.STATIC;
-        }
-        if (isAbstract(modifier)) {
-            return Modifier.ABSTRACT;
-        }
-        if (isPrivate(modifier)) {
-            return Modifier.PRIVATE;
-        }
-        if (isProtected(modifier)) {
-            return Modifier.PROTECTED;
-        }
-        if (isPublic(modifier)) {
-            return Modifier.PUBLIC;
-        }
-        return null;
     }
 
     private static URLClassLoader primaryClassLoader(List<String> classpath) throws MalformedURLException {
@@ -178,7 +148,7 @@ public class ImportCompletion {
                 Class<?> loadedClass = loader.load(file.getName(), in);
                 result.put(loadedClass, FileUtil.toFileObject(file));
             } catch (GoloCompilationException e) {
-                Exceptions.printStackTrace(e);
+//                Exceptions.printStackTrace(e);
             }
         }
         return result;

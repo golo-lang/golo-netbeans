@@ -57,6 +57,12 @@ public class GoloProject implements Project {
     private Lookup lkp;
     
     public static final String GOLO_ICON = "org/gololang/netbeans/golo_icon_16px.png";
+    public static final String JAVA_METHOD_ICON = "org/gololang/netbeans/method_16.png";
+    public static final String JAVA_INTERFACE_ICON = "org/gololang/netbeans/interface.png";
+    public static final String JAVA_STATIC_METHOD_ICON = "org/gololang/netbeans/method_static_16.png";
+    public static final String JAVA_FIELD_ICON = "org/gololang/netbeans/field_16.png";
+    public static final String JAVA_STATIC_FIELD_ICON = "org/gololang/netbeans/field_static_16.png";
+    public static final String JAVA_CLASS_ICON = "org/gololang/netbeans/class_16.png";
     
     GoloProject(FileObject dir, ProjectState state) {
         this.projectDir = dir;

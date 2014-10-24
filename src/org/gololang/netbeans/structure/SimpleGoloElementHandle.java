@@ -16,7 +16,14 @@
  */
 package org.gololang.netbeans.structure;
 
+import static java.lang.reflect.Modifier.isAbstract;
+import static java.lang.reflect.Modifier.isPrivate;
+import static java.lang.reflect.Modifier.isProtected;
+import static java.lang.reflect.Modifier.isPublic;
+import static java.lang.reflect.Modifier.isStatic;
+import java.util.HashSet;
 import java.util.Set;
+import org.gololang.netbeans.lexer.GoloTokenId;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.Modifier;
@@ -34,12 +41,14 @@ public class SimpleGoloElementHandle implements ElementHandle {
     private final Set<Modifier> modifiers;
     private final String elementName;
     private final ElementKind elementKind;
+    private final String className;
 
-    public SimpleGoloElementHandle(FileObject fileObject, String elementName, ElementKind elementKind, Set<Modifier> modifiers) {
+    public SimpleGoloElementHandle(FileObject fileObject, String className, String elementName, ElementKind elementKind, Set<Modifier> modifiers) {
         this.fileObject = fileObject;
         this.elementName = elementName;
         this.modifiers = modifiers;
         this.elementKind = elementKind;
+        this.className = className;
     }
 
     @Override
@@ -49,7 +58,11 @@ public class SimpleGoloElementHandle implements ElementHandle {
 
     @Override
     public String getMimeType() {
-        return fileObject.getMIMEType();
+        if (fileObject != null) {
+            return fileObject.getMIMEType();
+        }
+        // default value golo mime type or 'application/java-vm' ?
+        return GoloTokenId.getLanguage().mimeType();
     }
 
     @Override
@@ -59,7 +72,10 @@ public class SimpleGoloElementHandle implements ElementHandle {
 
     @Override
     public String getIn() {
-        return fileObject.getName();
+        if (fileObject != null) {
+            return fileObject.getName();
+        }
+        return className;
     }
 
     @Override
@@ -82,4 +98,23 @@ public class SimpleGoloElementHandle implements ElementHandle {
         return OffsetRange.NONE;
     }
 
+    protected static Set<Modifier> toModifier(int modifier) {
+        Set<Modifier> modifiers = new HashSet<>();
+        if (isStatic(modifier)) {
+            modifiers.add(Modifier.STATIC);
+        }
+        if (isAbstract(modifier)) {
+            modifiers.add(Modifier.ABSTRACT);
+        }
+        if (isPrivate(modifier)) {
+            modifiers.add(Modifier.PRIVATE);
+        }
+        if (isProtected(modifier)) {
+            modifiers.add(Modifier.PROTECTED);
+        }
+        if (isPublic(modifier)) {
+            modifiers.add(Modifier.PUBLIC);
+        }
+        return modifiers;
+    }
 }

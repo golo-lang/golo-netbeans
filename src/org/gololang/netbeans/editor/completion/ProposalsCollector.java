@@ -51,7 +51,7 @@ public class ProposalsCollector {
     }
 
     public void completeMethodsFromImports(CompletionContext context) {
-        importMethodCompletion.complete(proposals, context);
+        importMethodCompletion.complete(proposals, context, context.getAnchor());
     }
     
     

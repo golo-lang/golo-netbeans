@@ -17,11 +17,17 @@
 package org.gololang.netbeans.editor.completion;
 
 import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.swing.ImageIcon;
-import static org.gololang.netbeans.project.GoloProject.GOLO_ICON;
+import static org.gololang.netbeans.project.GoloProject.*;
 import org.gololang.netbeans.structure.GoloFunctionElementHandle;
+import org.gololang.netbeans.structure.ImportedFieldElementHandle;
+import org.gololang.netbeans.structure.ImportedMethodElementHandle;
 import org.gololang.netbeans.structure.KeywordElementHandle;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
@@ -32,14 +38,13 @@ import org.netbeans.modules.csl.spi.ParserResult;
 import org.openide.util.ImageUtilities;
 
 /**
- * 
+ *
  * @author Guillaume Soldera <guillaume.soldera@serli.com>
  */
 public class CompletionItem extends DefaultCompletionProposal {
 
     private ElementHandle element;
 
-    
     private CompletionItem(ElementHandle element, int anchorOffset) {
         this.element = element;
         this.anchorOffset = anchorOffset;
@@ -53,7 +58,7 @@ public class CompletionItem extends DefaultCompletionProposal {
 
     @Override
     public ElementHandle getElement() {
-        return null;
+        return element;
     }
 
     @Override
@@ -102,11 +107,9 @@ public class CompletionItem extends DefaultCompletionProposal {
 
     @Override
     public ImageIcon getIcon() {
-        return super.getIcon(); 
+        return super.getIcon();
     }
-    
-    
-    
+
     public static class KeywordItem extends CompletionItem {
 
         private final String keyword;
@@ -158,7 +161,7 @@ public class CompletionItem extends DefaultCompletionProposal {
             return new KeywordElementHandle(keyword, info.getSnapshot().getSource());
         }
     }
-    
+
     public static class FunctionItem extends CompletionItem {
 
         private final GoloFunction function;
@@ -195,13 +198,39 @@ public class CompletionItem extends DefaultCompletionProposal {
         }
 
         @Override
+        public String getLhsHtml(HtmlFormatter formatter) {
+            String name = function.getName();
+            formatter.appendText(name + "(" + getParameters(function.getParameterNames()) + ")");
+            return formatter.getText();
+        }
+
+        private String getParameters(List<String> parametersName) {
+            StringBuilder sb = new StringBuilder();
+            for (String string : parametersName) {
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
+                sb.append(string);
+            }
+            return sb.toString();
+        }
+
+        @Override
         public ImageIcon getIcon() {
             return new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
         }
 
         @Override
         public Set<Modifier> getModifiers() {
-            return Collections.emptySet();
+            Set<Modifier> modifiers = new HashSet<>();
+            switch (function.getVisibility()) {
+                case LOCAL: 
+                    modifiers.add(Modifier.PRIVATE);
+                case PUBLIC:                     
+                    modifiers.add(Modifier.PUBLIC);
+                default: break;
+            }
+            return modifiers;
         }
 
         @Override
@@ -209,18 +238,174 @@ public class CompletionItem extends DefaultCompletionProposal {
             // For completion documentation
             return new GoloFunctionElementHandle(function, info.getSnapshot().getSource());
         }
+
+        @Override
+        public List<String> getInsertParams() {
+            return function.getParameterNames();
+        }
+
+        @Override
+        public String[] getParamListDelimiters() {
+            return new String[]{"(", ")"};
+        }
+
+        @Override
+        public String getCustomInsertTemplate() {
+            List<String> params = getInsertParams();
+            if (params == null || params.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(getInsertPrefix());
+                String[] delimiters = getParamListDelimiters();
+                assert delimiters.length == 2;
+                sb.append(delimiters[0]);
+                sb.append(delimiters[1]);
+                sb.append("${cursor}"); // NOI18N
+
+                return sb.toString();
+            }
+            return super.getCustomInsertTemplate();
+
+        }
     }
-    
+
     public static class SimpleElementItem extends CompletionItem {
 
         public SimpleElementItem(ElementHandle element, int anchorOffset) {
             super(element, anchorOffset);
         }
-        
+
         @Override
         public ImageIcon getIcon() {
             return new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
         }
     }
     
+    public static class SimpleFieldElementItem extends SimpleElementItem {
+        
+        private final boolean isGoloElement;
+        private final ImportedFieldElementHandle importedField;
+        public SimpleFieldElementItem(ImportedFieldElementHandle elementHandle, int anchorOffset, boolean isGoloElement) {
+            super(elementHandle, anchorOffset);
+            this.isGoloElement = isGoloElement;
+            this.importedField = elementHandle;
+        }
+
+        @Override
+        public ImageIcon getIcon() {
+            if (isGoloElement) {
+                return super.getIcon(); 
+            }
+            
+            Set<Modifier> modifiers = importedField.getModifiers();
+            if (modifiers.contains(Modifier.STATIC)) {
+                return new ImageIcon(ImageUtilities.loadImage(JAVA_STATIC_FIELD_ICON));
+            }
+            return new ImageIcon(ImageUtilities.loadImage(JAVA_FIELD_ICON));
+        }
+    }
+    
+    public static class SimpleMethodElementItem extends SimpleElementItem {
+        
+        private static final List<String> VOWEL_LIST = Arrays.asList("a", "e", "i", "o", "u");
+        
+        private final boolean isGoloElement;
+        private final ImportedMethodElementHandle importedMethod;
+        public SimpleMethodElementItem(ImportedMethodElementHandle elementHandle, int anchorOffset, boolean isGoloElement) {
+            super(elementHandle, anchorOffset);
+            this.isGoloElement = isGoloElement;
+            this.importedMethod = (ImportedMethodElementHandle) getElement();
+        }
+
+        @Override
+        public ImageIcon getIcon() {
+            if (isGoloElement) {
+                return super.getIcon(); 
+            }
+            
+            Set<Modifier> modifiers = importedMethod.getModifiers();
+            if (modifiers.contains(Modifier.STATIC)) {
+                return new ImageIcon(ImageUtilities.loadImage(JAVA_STATIC_METHOD_ICON));
+            }
+            return new ImageIcon(ImageUtilities.loadImage(JAVA_METHOD_ICON));
+        }
+         
+        @Override
+        public String getLhsHtml(HtmlFormatter formatter) {
+            String name = importedMethod.getMethod().getName();
+            formatter.appendText(name + "(" + getParameters(importedMethod.getMethod().getParameterTypes()) + ")");
+            return formatter.getText();
+        }
+
+        private String getParameters(Class<?>[] parameterTypes) {
+            StringBuilder sb = new StringBuilder();
+            if (parameterTypes != null) {
+                for (Class<?> clazz : parameterTypes) {
+                    if (sb.length() > 0) {
+                        sb.append(", ");
+                    }
+                    final String simpleName = clazz.getSimpleName();
+                    sb.append(simpleName);
+                    sb.append(" ");
+                    sb.append(simpleName.toLowerCase().charAt(0));
+                }
+            }
+            return sb.toString();
+        }
+        
+        
+        @Override
+        public List<String> getInsertParams() {
+            Class<?>[] parameterTypes = importedMethod.getMethod().getParameterTypes();
+            if (parameterTypes == null || parameterTypes.length == 0) {
+                return Collections.emptyList();
+            }
+            List<String> params = new ArrayList<>(parameterTypes.length);
+            for (Class<?> parameterType : parameterTypes) {
+                   params.add(getParameterName(parameterType));
+            }
+            return params;
+        }
+        
+        private String getParameterName(Class<?> clazz) {
+            StringBuilder parameterName = new StringBuilder();
+            final String simpleName = clazz.getSimpleName();
+            String prefix = "";
+            String suffix = "";
+            String firstLetter = simpleName.toLowerCase().substring(0, 1);
+            if (VOWEL_LIST.contains(firstLetter)) {
+                prefix = "an";
+            } else {
+                prefix = "a";
+            }
+            if (clazz.isArray()) {
+                suffix = "Array";
+            }
+            return parameterName.append(prefix).append(simpleName).append(suffix).toString();
+        }
+
+        @Override
+        public String[] getParamListDelimiters() {
+            return new String[]{"(", ")"};
+        }
+
+        @Override
+        public String getCustomInsertTemplate() {
+            List<String> params = getInsertParams();
+            if (params == null || params.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(getInsertPrefix());
+                String[] delimiters = getParamListDelimiters();
+                assert delimiters.length == 2;
+                sb.append(delimiters[0]);
+                sb.append(delimiters[1]);
+                sb.append("${cursor}"); // NOI18N
+
+                return sb.toString();
+            }
+            return super.getCustomInsertTemplate();
+
+        }
+
+    }
+
 }
