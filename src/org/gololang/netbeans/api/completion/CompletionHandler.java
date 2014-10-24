@@ -95,11 +95,12 @@ public class CompletionHandler implements CodeCompletionHandler {
     public QueryType getAutoQuery(JTextComponent jtc, String typedText) {
         char c = typedText.charAt(0);
 
-        if (c == '.') {
-            // no proposals after '.' because it's not smart for instance
+        if (c == '.' || Character.isWhitespace(c)) {
+            // no proposals after '.', 'and whitespaces because it's not smart for instance
             return QueryType.NONE;
         }
-
+        
+        // proposals just for starting word (ctrl-space is not managed here)
         return QueryType.COMPLETION;
     }
 

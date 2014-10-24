@@ -28,6 +28,7 @@ import org.gololang.netbeans.parser.GoloParser;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.StructureItem;
 import org.netbeans.modules.csl.api.StructureScanner;
@@ -58,7 +59,11 @@ public class GoloStructureScanner implements StructureScanner {
         
         // Comments
         if (pr instanceof GoloParser.GoloParserResult) {
-            TokenHierarchy<Document> hi = TokenHierarchy.get(pr.getSnapshot().getSource().getDocument(true));
+            
+            final Document doc = pr.getSnapshot().getSource().getDocument(true);
+            ((BaseDocument)doc).readLock();
+            TokenHierarchy<Document> hi = TokenHierarchy.get(doc);
+            try {
             TokenSequence<GoloTokenId> ts = (TokenSequence<GoloTokenId>) hi.tokenSequence();
             int startComment = -1;
             int stopComment = -1;
@@ -99,6 +104,9 @@ public class GoloStructureScanner implements StructureScanner {
                     }
                 }
                 lastTokenId = id;
+            }
+            } finally {
+                ((BaseDocument)doc).readUnlock();
             }
             
             // Code blocks and imports

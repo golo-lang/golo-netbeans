@@ -198,6 +198,10 @@ public final class RunGoloProject implements ActionListener {
       return;
     }
   
+    public static String getGoloRootDir() {
+        return NbPreferences.forModule(RunPanel.class).get("rootDir", "");
+    }
+  
     @Override
     public void actionPerformed(ActionEvent e) {        
         FileObject selectedFile = context.getPrimaryFile();
@@ -213,7 +217,7 @@ public final class RunGoloProject implements ActionListener {
             sg = new SourceGroup[0];
         }
         
-        String rootDir = NbPreferences.forModule(RunPanel.class).get("rootDir", "");
+        String rootDir = getGoloRootDir();
         if (rootDir.isEmpty()) {
           JOptionPane.showMessageDialog(null, "Please set the Golo distribution root directory\nin Tools -> Options -> Golo", "Golo Error", JOptionPane.ERROR_MESSAGE);
         }

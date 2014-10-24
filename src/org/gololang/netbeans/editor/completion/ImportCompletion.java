@@ -25,6 +25,7 @@ import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import fr.insalyon.citi.golo.compiler.ir.ModuleImport;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,10 +33,11 @@ import static java.lang.reflect.Modifier.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.gololang.netbeans.RunGoloProject;
 import org.gololang.netbeans.api.completion.util.CompletionContext;
 import org.gololang.netbeans.parser.GoloParser.GoloParserResult;
 import org.gololang.netbeans.structure.ImportedFieldElementHandle;
@@ -59,7 +61,19 @@ public class ImportCompletion {
     void complete(List<CompletionProposal> proposals, CompletionContext context, int anchor) {
         GoloParserResult parserResult = (GoloParserResult) context.getParserResult();
         String filter = context.getPrefix();
-        List<String> classpath = Arrays.asList(".");
+        String rootDir = RunGoloProject.getGoloRootDir();
+        List<String> classpath = new ArrayList<>();
+        classpath.add(".");
+        File libDirFile = new File(rootDir, "lib");
+        for (File jarFile : libDirFile.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar");
+            }
+        })) {
+            classpath.add(jarFile.getAbsolutePath());
+        }
+
         FileObject fo = context.getSourceFile();
 
         Project owner = FileOwnerQuery.getOwner(fo);
@@ -83,38 +97,38 @@ public class ImportCompletion {
         try {
             goloSources = loadGoloFiles(owner.getProjectDirectory().getPath(), classLoader);
             for (ModuleImport moduleImport : parserResult.getModule().getImports()) {
-                if (moduleImport.hasASTNode()) {
+//                if (moduleImport.hasASTNode()) {
 
-                    String importClassName = moduleImport.getPackageAndClass().toString();
-                    Class<?> importClass;
-                    try {
-                        importClass = Class.forName(importClassName, true, classLoader);
-                        final FileObject goloFile = goloSources.get(importClass);
-                        boolean isGoloElement = goloFile != null;
-                        Method[] declaredMethods = importClass.getDeclaredMethods();
-                        for (Method method : declaredMethods) {
-                            if (!method.isSynthetic()) {
-                                if (!isPrivate(method.getModifiers()) && isStatic(method.getModifiers())) {
-                                    if (method.getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                                        proposals.add(new CompletionItem.SimpleMethodElementItem(new ImportedMethodElementHandle(goloFile, importClassName, method), anchor, isGoloElement));
-                                    }
+                String importClassName = moduleImport.getPackageAndClass().toString();
+                Class<?> importClass;
+                try {
+                    importClass = Class.forName(importClassName, true, classLoader);
+                    final FileObject goloFile = goloSources.get(importClass);
+                    boolean isGoloElement = goloFile != null;
+                    Method[] declaredMethods = importClass.getDeclaredMethods();
+                    for (Method method : declaredMethods) {
+                        if (!method.isSynthetic()) {
+                            if (!isPrivate(method.getModifiers()) && isStatic(method.getModifiers())) {
+                                if (method.getName().toLowerCase().startsWith(filter.toLowerCase())) {
+                                    proposals.add(new CompletionItem.SimpleMethodElementItem(new ImportedMethodElementHandle(goloFile, importClassName, method), anchor, isGoloElement));
                                 }
                             }
                         }
-                        Field[] declaredFields = importClass.getDeclaredFields();
-                        for (Field field : declaredFields) {
-                            if (!field.isSynthetic()) {
-                                if (isPublic(field.getModifiers()) && isStatic(field.getModifiers())) {
-                                    if (field.getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                                        proposals.add(new CompletionItem.SimpleFieldElementItem(new ImportedFieldElementHandle(goloFile, importClassName, field), anchor, isGoloElement));
-                                    }
-                                }
-                            }
-                        }
-                    } catch (ClassNotFoundException expected) {
-//                        Exceptions.printStackTrace(expected);
                     }
+                    Field[] declaredFields = importClass.getDeclaredFields();
+                    for (Field field : declaredFields) {
+                        if (!field.isSynthetic()) {
+                            if (isPublic(field.getModifiers()) && isStatic(field.getModifiers())) {
+                                if (field.getName().toLowerCase().startsWith(filter.toLowerCase())) {
+                                    proposals.add(new CompletionItem.SimpleFieldElementItem(new ImportedFieldElementHandle(goloFile, importClassName, field), anchor, isGoloElement));
+                                }
+                            }
+                        }
+                    }
+                } catch (ClassNotFoundException expected) {
+//                        Exceptions.printStackTrace(expected);
                 }
+//                }
             }
         } catch (Throwable ex) {
 //            Exceptions.printStackTrace(ex);
@@ -167,13 +181,4 @@ public class ImportCompletion {
         return imports;
     }
 
-//    private GoloModule parse() {
-//        final Reader reader = new StringReader(snapshot.getText().toString());
-//        FileObject file = snapshot.getSource().getFileObject();
-//        String fileDisplayName = file == null ? "source code" : FileUtil.getFileDisplayName(file);
-//        GoloCompiler compiler = new GoloParser.InternalGoloCompiler();
-//        compiler.setExceptionBuilder(new GoloCompilationException.Builder(fileDisplayName));
-//        ASTCompilationUnit compilationUnit = compiler.parse(fileDisplayName, compiler.initParser(reader));
-//        return compiler.check(compilationUnit);
-//    }
 }

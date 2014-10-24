@@ -17,6 +17,7 @@
 package org.gololang.netbeans.editor.completion;
 
 import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
+import fr.insalyon.citi.golo.compiler.parser.GoloParserConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -115,12 +116,14 @@ public class CompletionItem extends DefaultCompletionProposal {
         private final String keyword;
         private final String description;
         private final ParserResult info;
+        private final int tokenId;
 
-        public KeywordItem(String keyword, String description, int anchorOffset, ParserResult info) {
+        public KeywordItem(String keyword, int tokenId, String description, int anchorOffset, ParserResult info) {
             super(null, anchorOffset);
             this.keyword = keyword;
             this.description = description;
             this.info = info;
+            this.tokenId = tokenId;
         }
 
         @Override
@@ -159,6 +162,30 @@ public class CompletionItem extends DefaultCompletionProposal {
         public ElementHandle getElement() {
             // For completion documentation
             return new KeywordElementHandle(keyword, info.getSnapshot().getSource());
+        }
+        
+        @Override
+        public String[] getParamListDelimiters() {
+            if (tokenId == GoloParserConstants.COLL_START) {
+                return new String[]{"[", "]"};
+            }
+            return super.getParamListDelimiters();
+        }
+        
+         @Override
+        public String getCustomInsertTemplate() {
+            if (tokenId == GoloParserConstants.COLL_START) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(getInsertPrefix());
+                String[] delimiters = getParamListDelimiters();
+                assert delimiters.length == 2;
+                sb.append(delimiters[0]);
+                sb.append("${cursor}"); // NOI18N
+                sb.append(delimiters[1]);
+                return sb.toString();
+            }
+            return super.getCustomInsertTemplate();
+
         }
     }
 
@@ -368,7 +395,7 @@ public class CompletionItem extends DefaultCompletionProposal {
         
         private String getParameterName(Class<?> clazz) {
             StringBuilder parameterName = new StringBuilder();
-            final String simpleName = clazz.getSimpleName();
+            String simpleName = clazz.getSimpleName();
             String prefix = "";
             String suffix = "";
             String firstLetter = simpleName.toLowerCase().substring(0, 1);
@@ -378,6 +405,8 @@ public class CompletionItem extends DefaultCompletionProposal {
                 prefix = "a";
             }
             if (clazz.isArray()) {
+                // remove '[]'
+                simpleName = simpleName.substring(0, simpleName.length() - 2);
                 suffix = "Array";
             }
             return parameterName.append(prefix).append(simpleName).append(suffix).toString();

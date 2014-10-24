@@ -16,6 +16,8 @@
  */
 package org.gololang.netbeans.editor.completion;
 
+import fr.insalyon.citi.golo.compiler.ir.CollectionLiteral;
+import fr.insalyon.citi.golo.compiler.parser.GoloParserConstants;
 import org.gololang.netbeans.api.completion.util.CompletionContext;
 import java.util.Collection;
 import java.util.List;
@@ -34,8 +36,15 @@ public class KeywordCompletion {
         Collection<GoloTokenId> tokens = GoloLanguageHierarchy.getTokens();
         for (GoloTokenId token : tokens) {
             if ("keyword".equalsIgnoreCase(token.primaryCategory())) {
-                if (token.name().toLowerCase().startsWith(filter.toLowerCase())) {
-                    proposals.add(new CompletionItem.KeywordItem(token.name().toLowerCase(), null, anchor, completionRequest.getParserResult()));
+                if (token.ordinal() == GoloParserConstants.COLL_START) {
+                    CollectionLiteral.Type[] values = CollectionLiteral.Type.values();
+                    for (CollectionLiteral.Type value : values) {
+                        if (value.toString().toLowerCase().startsWith(filter.toLowerCase())) {
+                            proposals.add(new CompletionItem.KeywordItem(value.toString().toLowerCase(), token.ordinal(), null, anchor, completionRequest.getParserResult()));
+                        }
+                    }
+                } else if (token.name().toLowerCase().startsWith(filter.toLowerCase())) {
+                    proposals.add(new CompletionItem.KeywordItem(token.name().toLowerCase(), token.ordinal(), null, anchor, completionRequest.getParserResult()));
                 }
             }
         }
