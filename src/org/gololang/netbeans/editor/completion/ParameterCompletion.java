@@ -17,6 +17,7 @@
 package org.gololang.netbeans.editor.completion;
 
 import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
+import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
 import fr.insalyon.citi.golo.compiler.parser.GoloASTUtils;
 import java.util.List;
@@ -37,7 +38,8 @@ public class ParameterCompletion {
 
     void complete(List<CompletionProposal> proposals, CompletionContext completionRequest, int anchor) {
         String filter = completionRequest.getPrefix();
-        Set<GoloFunction> functions = ((GoloParser.GoloParserResult) completionRequest.getParserResult()).getModule().getFunctions();
+        GoloModule module = ((GoloParser.GoloParserResult) completionRequest.getParserResult()).getModule();
+        Set<GoloFunction> functions = module.getFunctions();
         BaseDocument doc = (BaseDocument) completionRequest.getParserResult().getSnapshot().getSource().getDocument(true);
         FileObject fo = completionRequest.getSourceFile();
         for (GoloFunction fn : functions) {
@@ -49,7 +51,7 @@ public class ParameterCompletion {
                     if (parameterNames != null && parameterNames.size() > 0) {
                         for (String parameterName : parameterNames) {
                             if (filter != null && parameterName.startsWith(filter)) {
-                                proposals.add(new CompletionItem.SimpleParameterElementItem(new GoloParameterElementHandle(fo, fn.getName(), parameterName), anchor));
+                                proposals.add(new CompletionItem.SimpleParameterElementItem(new GoloParameterElementHandle(fo, module.getPackageAndClass().toString(), fn.getName(), parameterName), anchor));
                             }
                         }
                     }

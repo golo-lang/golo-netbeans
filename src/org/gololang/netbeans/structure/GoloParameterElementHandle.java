@@ -26,9 +26,16 @@ import org.openide.filesystems.FileObject;
  * @author Guillaume Soldera <guillaume.soldera@serli.com>
  */
 public class GoloParameterElementHandle extends SimpleGoloElementHandle {
+    private final String functionName;
  
-    public GoloParameterElementHandle(FileObject fileObject, String className, String parameterName)  {
+    public GoloParameterElementHandle(FileObject fileObject, String className, String functionName, String parameterName)  {
         super(fileObject, className, parameterName, ElementKind.PARAMETER, new HashSet<Modifier>());
+        this.functionName = functionName;
     }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+    
     
 }

@@ -16,27 +16,20 @@
  */
 package org.gololang.netbeans.api.completion;
 
-import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
-import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
-import fr.insalyon.citi.golo.compiler.parser.GoloASTUtils;
-import java.util.ArrayList;
 import org.gololang.netbeans.editor.completion.ProposalsCollector;
 import org.gololang.netbeans.api.completion.util.CompletionContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import org.gololang.netbeans.parser.GoloParser;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.CodeCompletionContext;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
 import org.netbeans.modules.csl.api.CodeCompletionResult;
 import org.netbeans.modules.csl.api.CompletionProposal;
 import org.netbeans.modules.csl.api.ElementHandle;
-import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.ParameterInfo;
 import org.netbeans.modules.csl.spi.DefaultCompletionResult;
 import org.netbeans.modules.csl.spi.ParserResult;
@@ -126,78 +119,4 @@ public class CompletionHandler implements CodeCompletionHandler {
     public ParameterInfo parameters(ParserResult pr, int i, CompletionProposal cp) {
         return ParameterInfo.NONE;
     }
-//    @Override
-//    public ParameterInfo parameters(ParserResult pr, int caretOffset, CompletionProposal info) {
-//        // here we need to calculate the list of parameters for the methods under the caret.
-//        // proposal seems to be null all the time.
-//
-//        List<String> paramList = new ArrayList<>();
-//
-//        BaseDocument doc = (BaseDocument) pr.getSnapshot().getSource().getDocument(true);
-//        Set<GoloFunction> functions = ((GoloParser.GoloParserResult) pr).getModule().getFunctions();
-//        int idx = 1;
-//        int index = -1;
-//        int offset = -1;
-//
-//        for (GoloFunction function : functions) {
-//            GoloASTNode astNode = function.getASTNode();
-//            OffsetRange range = GoloASTUtils.getRange(astNode, doc);
-//            if (range.containsInclusive(caretOffset)) {
-//                paramList = function.getParameterNames();
-//                offset = range.getStart();
-//                index = idx;
-//            }
-//            idx++;
-//        }
-//
-//        if (paramList != null && !paramList.isEmpty()) {
-//            return new ParameterInfo(paramList, index, offset);
-//        }
-//        
-//        return ParameterInfo.NONE;
-
-//        AstPath path = getPathFromInfo(caretOffset, info);
-//
-//        if (path != null) {
-//
-//            ArgumentListExpression ael = getSurroundingArgumentList(path);
-//
-//            if (ael != null) {
-//
-//                List<ASTNode> children = ASTUtils.children(ael);
-//
-//                // populate list with *all* parameters, but let index and offset
-//                // point to a specific parameter.
-//                int idx = 1;
-//                int index = -1;
-//                int offset = -1;
-//
-//                for (ASTNode node : children) {
-//                    OffsetRange range = GoloASTUtils.getRange(node, doc);
-//                    paramList.add(node.getText());
-//
-//                    if (range.containsInclusive(caretOffset)) {
-//                        offset = range.getStart();
-//                        index = idx;
-//                    }
-//
-//                    idx++;
-//                }
-//
-//                // calculate the parameter we are dealing with
-//                if (paramList != null && !paramList.isEmpty()) {
-//                    return new ParameterInfo(paramList, index, offset);
-//                }
-//            } else {
-//                LOG.log(Level.FINEST, "ArgumentListExpression ==  null"); // NOI18N
-//                return ParameterInfo.NONE;
-//            }
-//
-//        } else {
-//            LOG.log(Level.FINEST, "path ==  null"); // NOI18N
-//            return ParameterInfo.NONE;
-//        }
-//        return ParameterInfo.NONE;
-//    }
-
 }

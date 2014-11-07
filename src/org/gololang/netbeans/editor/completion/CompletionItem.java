@@ -25,12 +25,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.swing.ImageIcon;
+import org.gololang.netbeans.parser.GoloParser;
 import static org.gololang.netbeans.project.GoloProject.*;
 import org.gololang.netbeans.structure.GoloFunctionElementHandle;
 import org.gololang.netbeans.structure.GoloParameterElementHandle;
 import org.gololang.netbeans.structure.ImportedFieldElementHandle;
 import org.gololang.netbeans.structure.ImportedMethodElementHandle;
 import org.gololang.netbeans.structure.KeywordElementHandle;
+import org.gololang.netbeans.structure.SimpleGoloElementHandle;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.HtmlFormatter;
@@ -199,8 +201,9 @@ public class CompletionItem extends DefaultCompletionProposal {
         public FunctionItem(GoloFunction function, int anchorOffset, ParserResult info) {
             super(null, anchorOffset);
             this.function = function;
-            this.description = "";
+            this.description = ((GoloParser.GoloParserResult)info).getModule().getPackageAndClass().toString();
             this.info = info;
+            
         }
 
         @Override
@@ -215,6 +218,7 @@ public class CompletionItem extends DefaultCompletionProposal {
 
         @Override
         public String getRhsHtml(HtmlFormatter formatter) {
+            
             if (description != null) {
                 //formatter.appendText(description);
                 formatter.appendHtml(description);
@@ -228,7 +232,9 @@ public class CompletionItem extends DefaultCompletionProposal {
         @Override
         public String getLhsHtml(HtmlFormatter formatter) {
             String name = function.getName();
+            formatter.emphasis(true);
             formatter.appendText(name + "(" + getParameters(function.getParameterNames()) + ")");
+            formatter.emphasis(false);
             return formatter.getText();
         }
 
@@ -294,11 +300,18 @@ public class CompletionItem extends DefaultCompletionProposal {
             return super.getCustomInsertTemplate();
 
         }
+
+        @Override
+        public boolean isSmart() {
+            return true;
+        }
+        
+        
     }
 
     public static class SimpleElementItem extends CompletionItem {
 
-        public SimpleElementItem(ElementHandle element, int anchorOffset) {
+        public SimpleElementItem(SimpleGoloElementHandle element, int anchorOffset) {
             super(element, anchorOffset);
         }
 
@@ -306,6 +319,15 @@ public class CompletionItem extends DefaultCompletionProposal {
         public ImageIcon getIcon() {
             return new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
         }
+
+        @Override
+        public String getRhsHtml(HtmlFormatter formatter) {
+            SimpleGoloElementHandle element = (SimpleGoloElementHandle) getElement();
+            formatter.appendText(element.getFromClassName());
+            return formatter.getText();
+        }
+        
+        
     }
     
     public static class SimpleFieldElementItem extends SimpleElementItem {
@@ -330,6 +352,12 @@ public class CompletionItem extends DefaultCompletionProposal {
             }
             return new ImageIcon(ImageUtilities.loadImage(JAVA_FIELD_ICON));
         }
+
+        
+        @Override
+        public boolean isSmart() {
+            return isGoloElement;
+        }
     }
     
     public static class SimpleParameterElementItem extends SimpleElementItem {
@@ -341,6 +369,30 @@ public class CompletionItem extends DefaultCompletionProposal {
         @Override
         public ImageIcon getIcon() {
             return super.getIcon(); 
+        }
+
+        @Override
+        public String getLhsHtml(HtmlFormatter formatter) {
+            formatter.emphasis(true);
+            formatter.appendText(getName());
+            formatter.emphasis(false);
+            return formatter.getText(); 
+        }
+        
+        @Override
+        public String getRhsHtml(HtmlFormatter formatter) {
+            GoloParameterElementHandle element = (GoloParameterElementHandle) getElement();
+            formatter.appendText(element.getFromClassName());
+            formatter.appendText(".");
+            formatter.appendHtml("<i>");
+            formatter.appendText(element.getFunctionName());
+            formatter.appendHtml("</i>");
+            return formatter.getText();
+        }
+        
+        @Override
+        public boolean isSmart() {
+            return true;
         }
     }
     
@@ -372,7 +424,15 @@ public class CompletionItem extends DefaultCompletionProposal {
         @Override
         public String getLhsHtml(HtmlFormatter formatter) {
             String name = importedMethod.getMethod().getName();
+            if (importedMethod.isFromPredifinedGoloClass()) {
+                formatter.appendHtml("<i>");
+                formatter.emphasis(true);
+            }
             formatter.appendText(name + "(" + getParameters(importedMethod.getMethod().getParameterTypes()) + ")");
+            if (importedMethod.isFromPredifinedGoloClass()) {
+                formatter.emphasis(false);
+                formatter.appendHtml("</i>");
+            }
             return formatter.getText();
         }
 
@@ -448,6 +508,10 @@ public class CompletionItem extends DefaultCompletionProposal {
 
         }
 
+        @Override
+        public boolean isSmart() {
+            return isGoloElement;
+        }
     }
 
 }

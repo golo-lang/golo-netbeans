@@ -41,14 +41,14 @@ public class SimpleGoloElementHandle implements ElementHandle {
     private final Set<Modifier> modifiers;
     private final String elementName;
     private final ElementKind elementKind;
-    private final String className;
+    private final String fromClassName;
 
-    public SimpleGoloElementHandle(FileObject fileObject, String className, String elementName, ElementKind elementKind, Set<Modifier> modifiers) {
+    public SimpleGoloElementHandle(FileObject fileObject, String fromClassName, String elementName, ElementKind elementKind, Set<Modifier> modifiers) {
         this.fileObject = fileObject;
         this.elementName = elementName;
         this.modifiers = modifiers;
         this.elementKind = elementKind;
-        this.className = className;
+        this.fromClassName = fromClassName;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class SimpleGoloElementHandle implements ElementHandle {
         if (fileObject != null) {
             return fileObject.getName();
         }
-        return className;
+        return fromClassName;
     }
 
     @Override
@@ -117,4 +117,13 @@ public class SimpleGoloElementHandle implements ElementHandle {
         }
         return modifiers;
     }
+
+    public String getFromClassName() {
+        return fromClassName;
+    }
+    
+    public boolean isFromPredifinedGoloClass() {
+        return "gololang.Predefined".equals(fromClassName);
+    }
+    
 }
