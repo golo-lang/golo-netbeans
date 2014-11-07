@@ -32,6 +32,9 @@ import org.openide.util.Exceptions;
 
 public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
 
+    public static final String KEYWORD_CATGEORY = "keyword";
+    public static final String IDENTIFIER_CATEGORY = "identifier";
+    
     private static Collection<GoloTokenId> tokens;
     private static TreeMap<Integer, GoloTokenId> idToToken;
 
@@ -87,7 +90,7 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                 case "FALSE" :
                 case "VAR" :
                 case "LET" :
-                    category = "keyword";
+                    category = KEYWORD_CATGEORY;
                     break;
 
                 case "NUMBER" :
@@ -100,7 +103,7 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                 case "IDENTIFIER" :
                 case "FUNREF" :
                 case "CLASSREF" :
-                    category = "identifier";
+                    category = IDENTIFIER_CATEGORY;
                     break;
 
                 case "ASSOCIATIVE_OPERATOR" :

@@ -35,7 +35,7 @@ public class KeywordCompletion {
         String filter = completionRequest.getPrefix();
         Collection<GoloTokenId> tokens = GoloLanguageHierarchy.getTokens();
         for (GoloTokenId token : tokens) {
-            if ("keyword".equalsIgnoreCase(token.primaryCategory())) {
+            if (GoloLanguageHierarchy.KEYWORD_CATGEORY.equalsIgnoreCase(token.primaryCategory())) {
                 if (token.ordinal() == GoloParserConstants.COLL_START) {
                     CollectionLiteral.Type[] values = CollectionLiteral.Type.values();
                     for (CollectionLiteral.Type value : values) {
@@ -49,5 +49,6 @@ public class KeywordCompletion {
             }
         }
     }
+    
 
 }

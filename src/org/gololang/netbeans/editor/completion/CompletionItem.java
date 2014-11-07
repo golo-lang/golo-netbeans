@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import static org.gololang.netbeans.project.GoloProject.*;
 import org.gololang.netbeans.structure.GoloFunctionElementHandle;
+import org.gololang.netbeans.structure.GoloParameterElementHandle;
 import org.gololang.netbeans.structure.ImportedFieldElementHandle;
 import org.gololang.netbeans.structure.ImportedMethodElementHandle;
 import org.gololang.netbeans.structure.KeywordElementHandle;
@@ -328,6 +329,18 @@ public class CompletionItem extends DefaultCompletionProposal {
                 return new ImageIcon(ImageUtilities.loadImage(JAVA_STATIC_FIELD_ICON));
             }
             return new ImageIcon(ImageUtilities.loadImage(JAVA_FIELD_ICON));
+        }
+    }
+    
+    public static class SimpleParameterElementItem extends SimpleElementItem {
+        
+        public SimpleParameterElementItem(GoloParameterElementHandle elementHandle, int anchorOffset) {
+            super(elementHandle, anchorOffset);
+        }
+
+        @Override
+        public ImageIcon getIcon() {
+            return super.getIcon(); 
         }
     }
     
