@@ -31,6 +31,7 @@ public class ProposalsCollector {
     private final FunctionCompletion functionCompletion;
     private final ImportCompletion importMethodCompletion;
     private final ParameterCompletion parameterCompletion;
+    private final VariableCompletion variableCompletion;
     
     public ProposalsCollector() {
         proposals = new ArrayList<>();
@@ -38,6 +39,7 @@ public class ProposalsCollector {
         functionCompletion = new FunctionCompletion();
         importMethodCompletion = new ImportCompletion();
         parameterCompletion = new ParameterCompletion();
+        variableCompletion = new VariableCompletion();
     }
     
     public void completeKeywords(CompletionContext completionRequest) {
@@ -58,5 +60,9 @@ public class ProposalsCollector {
     
     public void completeParameters(CompletionContext context) {
         parameterCompletion.complete(proposals, context, context.getAnchor());
+    }
+    
+    public void completeVariable(CompletionContext context) {
+        variableCompletion.complete(proposals, context, context.getAnchor());
     }
 }

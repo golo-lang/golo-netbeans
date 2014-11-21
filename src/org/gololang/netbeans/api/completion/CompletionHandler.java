@@ -70,6 +70,7 @@ public class CompletionHandler implements CodeCompletionHandler {
             collector.completeMethods(context);
             collector.completeMethodsFromImports(context);
             collector.completeParameters(context);
+            collector.completeVariable(context);
             List<CompletionProposal> listCompletionProposal = collector.getProposals();
             return new DefaultCompletionResult(listCompletionProposal, false);
         } finally {

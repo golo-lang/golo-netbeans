@@ -14,7 +14,6 @@
  *  limitations under the License.
  * 
  */
-
 package org.gololang.netbeans.structure;
 
 import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
@@ -34,57 +33,62 @@ import org.openide.filesystems.FileObject;
  */
 public abstract class GoloElementHandle implements ElementHandle {
 
-  protected GoloASTNode node;
-  protected Source source;
+    protected GoloASTNode node;
+    protected Source source;
 
-  public GoloElementHandle(GoloASTNode node, Source source) {
+    public GoloElementHandle(GoloASTNode node, Source source) {
 //    assert(node instanceof NamedNode);
-    this.node = node;
-    this.source = source;
-  }
-
-  @Override
-  public FileObject getFileObject() {
-    return source.getFileObject();
-  }
-
-  @Override
-  public String getMimeType() {
-    return source.getMimeType();
-  }
-
-  @Override
-  public String getName() {
-    if (node instanceof NamedNode) {
-      return ((NamedNode) node).getName();
+        this.node = node;
+        this.source = source;
     }
-    return "";
-  }
 
-  @Override
-  public String getIn() {
-    GoloASTNode parent = (GoloASTNode) node.jjtGetParent();
-    while (parent != null) {
-      if (parent instanceof NamedNode) {
-        return ((NamedNode) parent).getName();
-      }
-      parent = (GoloASTNode) parent.jjtGetParent();
-    };
-    return "";
-  }
+    @Override
+    public FileObject getFileObject() {
+        return source.getFileObject();
+    }
 
-  @Override
-  public Set<Modifier> getModifiers() {
-    return Collections.emptySet();
-  }
+    @Override
+    public String getMimeType() {
+        return source.getMimeType();
+    }
 
-  @Override
-  public boolean signatureEquals(ElementHandle handle) {
-    return false;
-  }
+    @Override
+    public String getName() {
+        if (node instanceof NamedNode) {
+            return ((NamedNode) node).getName();
+        }
+        return "";
+    }
 
-  @Override
-  public OffsetRange getOffsetRange(ParserResult result) {
-    return new OffsetRange(node.jjtGetFirstToken().startOffset, node.jjtGetLastToken().endOffset);
-  }
+    @Override
+    public String getIn() {
+        GoloASTNode parent = (GoloASTNode) node.jjtGetParent();
+        while (parent != null) {
+            if (parent instanceof NamedNode) {
+                return ((NamedNode) parent).getName();
+            }
+            parent = (GoloASTNode) parent.jjtGetParent();
+        };
+        return "";
+    }
+
+    @Override
+    public Set<Modifier> getModifiers() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public boolean signatureEquals(ElementHandle handle) {
+        return false;
+    }
+
+    @Override
+    public OffsetRange getOffsetRange(ParserResult result) {
+        return new OffsetRange(node.jjtGetFirstToken().startOffset, node.jjtGetLastToken().endOffset);
+    }
+
+    public GoloASTNode getNode() {
+        return node;
+    }
+
 }
