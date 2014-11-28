@@ -16,6 +16,7 @@
  */
 package org.gololang.netbeans.api.completion;
 
+import fr.insalyon.citi.golo.compiler.parser.GoloParserConstants;
 import org.gololang.netbeans.editor.completion.ProposalsCollector;
 import org.gololang.netbeans.api.completion.util.CompletionContext;
 import java.util.Collections;
@@ -24,6 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.gololang.netbeans.lexer.GoloLexerUtils;
+import org.gololang.netbeans.lexer.GoloTokenId;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.CodeCompletionContext;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
@@ -50,7 +54,7 @@ public class CompletionHandler implements CodeCompletionHandler {
         if (prefix == null) {
             prefix = "";
         }
-            if (completionContext.getQueryType() == QueryType.NONE) {
+        if (completionContext.getQueryType() == QueryType.NONE) {
             return CodeCompletionResult.NONE;
         }
         int lexOffset = completionContext.getCaretOffset();
@@ -66,6 +70,11 @@ public class CompletionHandler implements CodeCompletionHandler {
         try {
             ProposalsCollector collector = new ProposalsCollector();
             CompletionContext context = new CompletionContext(parserResult, prefix, anchor, lexOffset, doc);
+            
+            if (GoloLexerUtils.isVariableOrConstantDeclaration(doc, lexOffset)) {
+                // new variable or constant declaration, so nothing to propose
+                return CodeCompletionResult.NONE;
+            }
             collector.completeKeywords(context);
             collector.completeMethods(context);
             collector.completeMethodsFromImports(context);

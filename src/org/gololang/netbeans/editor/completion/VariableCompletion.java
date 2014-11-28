@@ -27,13 +27,11 @@ import java.util.List;
 import java.util.Set;
 import org.gololang.netbeans.api.completion.util.CompletionContext;
 import org.gololang.netbeans.parser.GoloParser;
-import org.gololang.netbeans.structure.GoloParameterElementHandle;
 import org.gololang.netbeans.structure.VariableElementHandle;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.CompletionProposal;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.parsing.api.Source;
-import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -47,7 +45,6 @@ public class VariableCompletion {
         Set<GoloFunction> functions = module.getFunctions();
         Source source = completionRequest.getParserResult().getSnapshot().getSource();
         BaseDocument doc = (BaseDocument) source.getDocument(true);
-        FileObject fo = completionRequest.getSourceFile();
         for (GoloFunction fn : functions) {
             if (!fn.getName().startsWith("__$$_")) {
                 GoloASTNode astNode = fn.getASTNode();
