@@ -17,6 +17,7 @@
 package org.gololang.netbeans.api.completion;
 
 import fr.insalyon.citi.golo.compiler.parser.GoloParserConstants;
+import java.util.Arrays;
 import org.gololang.netbeans.editor.completion.ProposalsCollector;
 import org.gololang.netbeans.api.completion.util.CompletionContext;
 import java.util.Collections;
@@ -25,9 +26,11 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.gololang.netbeans.lexer.GoloLanguageHierarchy;
 import org.gololang.netbeans.lexer.GoloLexerUtils;
 import org.gololang.netbeans.lexer.GoloTokenId;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.CodeCompletionContext;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
@@ -70,9 +73,7 @@ public class CompletionHandler implements CodeCompletionHandler {
         try {
             ProposalsCollector collector = new ProposalsCollector();
             CompletionContext context = new CompletionContext(parserResult, prefix, anchor, lexOffset, doc);
-            
-            if (GoloLexerUtils.isVariableOrConstantDeclaration(doc, lexOffset)) {
-                // new variable or constant declaration, so nothing to propose
+            if (noNeedToPropose(doc, lexOffset)) {
                 return CodeCompletionResult.NONE;
             }
             collector.completeKeywords(context);
@@ -85,6 +86,22 @@ public class CompletionHandler implements CodeCompletionHandler {
         } finally {
             doc.readUnlock();
         }
+    }
+
+    private boolean noNeedToPropose(BaseDocument doc, int lexOffset) {
+        TokenSequence<GoloTokenId> sequence = GoloLexerUtils.getPositionedSequence(doc, lexOffset);
+        Token<GoloTokenId> token = sequence.token();
+        
+        if (GoloLexerUtils.isInCategories(token, Arrays.asList(GoloLanguageHierarchy.COMMENT_CATEGORY, GoloLanguageHierarchy.STRING_CATEGORY, GoloLanguageHierarchy.IDENTIFIER_CATEGORY))) {
+            return true;
+        }
+        
+        // previous token == LET or VAR ?
+        if (GoloLexerUtils.isJustAfterTokenOfType(sequence, Arrays.asList(GoloParserConstants.LET, GoloParserConstants.VAR))) {
+            // new variable or constant declaration, so nothing to propose
+            return true;
+        }
+        return false;
     }
 
     @Override

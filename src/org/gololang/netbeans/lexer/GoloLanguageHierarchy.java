@@ -34,6 +34,12 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
 
     public static final String KEYWORD_CATGEORY = "keyword";
     public static final String IDENTIFIER_CATEGORY = "identifier";
+    public static final String COMMENT_CATEGORY = "comment";
+    public static final String WHITESPACE_CATEGORY = "whitespace";
+    public static final String CHARACTER_CATEGORY = "character";
+    public static final String NUMBER_CATEGORY = "number";
+    public static final String OPERATOR_CATEGORY = "operator";
+    public static final String STRING_CATEGORY = "string";
     
     private static Collection<GoloTokenId> tokens;
     private static TreeMap<Integer, GoloTokenId> idToToken;
@@ -54,7 +60,7 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
             switch (field.getName()) {
                 case "EOF" : 
                 case "NEWLINE" : 
-                    category = "whitespace";
+                    category = WHITESPACE_CATEGORY;
                     break;
                     
                 case "ESCAPE" :
@@ -97,7 +103,7 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                 case "LONG_NUMBER" : 
                 case "FLOATING_NUMBER" :
                 case "FLOAT" : 
-                    category = "number";
+                    category = NUMBER_CATEGORY;
                     break;
 
                 case "IDENTIFIER" :
@@ -109,23 +115,23 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                 case "ASSOCIATIVE_OPERATOR" :
                 case "COMMUTATIVE_OPERATOR" : 
                 case "UNARY_OPERATOR" : 
-                    category = "operator";
+                    category = OPERATOR_CATEGORY;
                     break;
 
                 case "MULTI_STRING" :                    
                 case "STRING" :
-                    category = "string";
+                    category = STRING_CATEGORY;
                     break;
 
                 case "LETTER" :
                 case "ID_REST" :
                 case "CHAR" :
-                    category = "character";
+                    category = CHARACTER_CATEGORY;
                     break;
 
                 case "DOCUMENTATION" :
                 case "COMMENT" :
-                    category = "comment";
+                    category = COMMENT_CATEGORY;
                     break;
 
                 default :

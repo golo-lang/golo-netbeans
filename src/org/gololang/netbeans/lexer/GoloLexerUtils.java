@@ -17,6 +17,7 @@
 package org.gololang.netbeans.lexer;
 
 import fr.insalyon.citi.golo.compiler.parser.GoloParserConstants;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
@@ -110,46 +111,17 @@ public final class GoloLexerUtils {
     
     public static Token<GoloTokenId> getPreviousToken(BaseDocument doc, int offset) {
         TokenSequence<GoloTokenId> positionedSequence = GoloLexerUtils.getPositionedSequence(doc, offset);
-        if (positionedSequence != null) {
-            Token<GoloTokenId> tokenValue = positionedSequence.token();
-            if (tokenValue != null && positionedSequence.movePrevious()) {
-                return positionedSequence.token();
+        return getPreviousToken(positionedSequence);
+    }
+
+    public static Token<GoloTokenId> getPreviousToken(TokenSequence<GoloTokenId> tokenSequence) {
+        if (tokenSequence != null) {
+            Token<GoloTokenId> tokenValue = tokenSequence.token();
+            if (tokenValue != null && tokenSequence.movePrevious()) {
+                return tokenSequence.token();
             }
         }
         return null;
-    }
-
-    public static Token<GoloTokenId> getToken(BaseDocument doc, int offset) {
-        TokenSequence<GoloTokenId> ts = getGoloTokenSequence(doc, offset);
-
-        if (ts != null) {
-            try {
-                ts.move(offset);
-            } catch (AssertionError e) {
-                DataObject dobj = (DataObject) doc.getProperty(Document.StreamDescriptionProperty);
-
-                if (dobj != null) {
-                    Exceptions.attachMessage(e, FileUtil.getFileDisplayName(dobj.getPrimaryFile()));
-                }
-
-                throw e;
-            }
-
-            if (!ts.moveNext() && !ts.movePrevious()) {
-                return null;
-            }
-
-            Token<GoloTokenId> token = ts.token();
-
-            return token;
-        }
-
-        return null;
-    }
-    
-    public static boolean isVariableOrConstantDeclaration(BaseDocument doc, int offset) {
-        Token<GoloTokenId> previousToken = GoloLexerUtils.getPreviousToken(doc, offset);
-        return isVariableOrConstantDeclarationToken(previousToken);
     }
     
     public static boolean isVariableOrConstantDeclarationToken(Token<GoloTokenId> token) {
@@ -158,5 +130,25 @@ public final class GoloLexerUtils {
         }
         return false;
     }
+    
+    public static boolean isInCategories(Token<GoloTokenId> token, List<String> categories) {
+        if (token != null) {
+            return categories.contains(token.id().primaryCategory());
+        }
+        return false;
+    }
 
+    public static boolean isOfType(Token<GoloTokenId> token, List<Integer> tokenOrdinals) {
+        if (token != null) {
+            return tokenOrdinals.contains(token.id().ordinal());
+        }
+        return false;
+    }
+    
+    
+    public static boolean isJustAfterTokenOfType(TokenSequence<GoloTokenId> sequence, List<Integer> tokenOrdinals) {
+        Token<GoloTokenId> previousToken = GoloLexerUtils.getPreviousToken(sequence);
+        return isOfType(previousToken, tokenOrdinals);
+    }
+    
 }
