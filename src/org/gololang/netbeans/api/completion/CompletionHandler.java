@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.gololang.netbeans.editor.completion.CompletionItem;
 import org.gololang.netbeans.lexer.GoloLanguageHierarchy;
 import org.gololang.netbeans.lexer.GoloLexerUtils;
 import org.gololang.netbeans.lexer.GoloTokenId;
@@ -47,11 +48,15 @@ import org.netbeans.modules.csl.spi.ParserResult;
  */
 public class CompletionHandler implements CodeCompletionHandler {
 
+    private String startingText = null;
+
     @Override
     public CodeCompletionResult complete(CodeCompletionContext completionContext) {
         ParserResult parserResult = completionContext.getParserResult();
         String prefix = completionContext.getPrefix();
-
+        if (prefix == null) {
+            prefix = startingText;
+        }
         // Documentation says that @NonNull is return from getPrefix() but it's not true
         // Invoking "this.^" makes the return value null
         if (prefix == null) {
@@ -76,11 +81,24 @@ public class CompletionHandler implements CodeCompletionHandler {
             if (noNeedToPropose(doc, lexOffset)) {
                 return CodeCompletionResult.NONE;
             }
-            collector.completeKeywords(context);
-            collector.completeMethods(context);
-            collector.completeMethodsFromImports(context);
-            collector.completeParameters(context);
-            collector.completeVariable(context);
+
+            if (context.isAnchorInFunction()) {
+                if (startingTextMatchesWith(GoloLanguageHierarchy.MULTILINE_DELIMITER)) {
+                    CompletionProposal multiline = new CompletionItem.MultiStringItem(context.getAnchor());
+                    return new DefaultCompletionResult(Arrays.asList(multiline), false);
+                }
+                collector.completeKeywords(context);
+                collector.completeMethods(context);
+                collector.completeMethodsFromImports(context);
+                collector.completeParameters(context);
+                collector.completeVariable(context);
+            } else {
+                if (startingTextMatchesWith(GoloLanguageHierarchy.GOLODOC_DELIMITER)) {
+                    collector.completeDocumentation(context);
+                } else {
+                    collector.completeKeywords(context);
+                }
+            }
             List<CompletionProposal> listCompletionProposal = collector.getProposals();
             return new DefaultCompletionResult(listCompletionProposal, false);
         } finally {
@@ -88,18 +106,38 @@ public class CompletionHandler implements CodeCompletionHandler {
         }
     }
 
+    private boolean startingTextMatchesWith(String match) {
+        return startingText != null && startingText.length() > 0 && match.startsWith(startingText);
+    }
+
+    
     private boolean noNeedToPropose(BaseDocument doc, int lexOffset) {
         TokenSequence<GoloTokenId> sequence = GoloLexerUtils.getPositionedSequence(doc, lexOffset);
         Token<GoloTokenId> token = sequence.token();
-        
+
         if (GoloLexerUtils.isInCategories(token, Arrays.asList(GoloLanguageHierarchy.COMMENT_CATEGORY, GoloLanguageHierarchy.STRING_CATEGORY, GoloLanguageHierarchy.IDENTIFIER_CATEGORY))) {
             return true;
         }
-        
-        // previous token == LET or VAR ?
-        if (GoloLexerUtils.isJustAfterTokenOfType(sequence, Arrays.asList(GoloParserConstants.LET, GoloParserConstants.VAR))) {
+
+        if (isInVariableOrConstantDeclaration(sequence)) {
             // new variable or constant declaration, so nothing to propose
             return true;
+        }
+        return false;
+    }
+
+    private boolean isInVariableOrConstantDeclaration(TokenSequence<GoloTokenId> sequence) {
+        Token<GoloTokenId> previousToken = GoloLexerUtils.getPreviousToken(sequence);
+        if (GoloLexerUtils.isOfType(previousToken, Arrays.asList(GoloParserConstants.LET, GoloParserConstants.VAR))) {
+            // new variable or constant declaration, so nothing to propose
+            return true;
+        }
+        if (GoloLexerUtils.isOfType(previousToken, Arrays.asList(GoloParserConstants.IDENTIFIER))) {
+            Token<GoloTokenId> previousPreviousToken = GoloLexerUtils.getPreviousToken(sequence);
+            if (GoloLexerUtils.isOfType(previousPreviousToken, Arrays.asList(GoloParserConstants.LET, GoloParserConstants.VAR))) {
+                // new variable or constant declaration, so nothing to propose
+                return true;
+            }
         }
         return false;
     }
@@ -121,6 +159,21 @@ public class CompletionHandler implements CodeCompletionHandler {
 
     @Override
     public QueryType getAutoQuery(JTextComponent jtc, String typedText) {
+        String text = jtc.getText();
+        int dot = jtc.getCaret().getDot();
+        String before = text.substring(0, dot);
+        int i = before.lastIndexOf("\n");
+        String start = text.substring(i + 1, dot);
+        startingText = null;
+        if (start != null && start.length() > 0) {
+            int lastWhitespace = start.lastIndexOf(" ");
+            if (lastWhitespace != -1 && lastWhitespace < start.length() - 1) {
+                startingText = start.substring(lastWhitespace + 1);
+            } else {
+                startingText = start;
+            }
+        }
+
         char c = typedText.charAt(0);
 
         if (c == '.' || Character.isWhitespace(c)) {

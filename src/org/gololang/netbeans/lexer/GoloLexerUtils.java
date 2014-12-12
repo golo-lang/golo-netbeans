@@ -17,7 +17,6 @@
 package org.gololang.netbeans.lexer;
 
 import fr.insalyon.citi.golo.compiler.parser.GoloParserConstants;
-import java.util.Arrays;
 import java.util.List;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
@@ -118,6 +117,21 @@ public final class GoloLexerUtils {
         if (tokenSequence != null) {
             Token<GoloTokenId> tokenValue = tokenSequence.token();
             if (tokenValue != null && tokenSequence.movePrevious()) {
+                return tokenSequence.token();
+            }
+        }
+        return null;
+    }
+    
+    public static Token<GoloTokenId> getNextToken(BaseDocument doc, int offset) {
+        TokenSequence<GoloTokenId> positionedSequence = GoloLexerUtils.getPositionedSequence(doc, offset);
+        return getNextToken(positionedSequence);
+    }
+
+    public static Token<GoloTokenId> getNextToken(TokenSequence<GoloTokenId> tokenSequence) {
+        if (tokenSequence != null) {
+            Token<GoloTokenId> tokenValue = tokenSequence.token();
+            if (tokenValue != null && tokenSequence.moveNext()) {
                 return tokenSequence.token();
             }
         }

@@ -16,19 +16,10 @@
  */
 package org.gololang.netbeans.editor.completion;
 
-import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
-import fr.insalyon.citi.golo.compiler.ir.BinaryOperation;
-import fr.insalyon.citi.golo.compiler.ir.ClosureReference;
-import fr.insalyon.citi.golo.compiler.ir.ExpressionStatement;
-import fr.insalyon.citi.golo.compiler.ir.FunctionInvocation;
 import fr.insalyon.citi.golo.compiler.ir.GoloElement;
 import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
-import fr.insalyon.citi.golo.compiler.ir.MethodInvocation;
 import fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar;
-import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
 import fr.insalyon.citi.golo.compiler.parser.GoloParserConstants;
-import fr.insalyon.citi.golo.runtime.MethodInvocationSupport;
-import fr.insalyon.citi.golo.runtime.OperatorType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.swing.ImageIcon;
+import org.gololang.netbeans.lexer.GoloLanguageHierarchy;
+import org.gololang.netbeans.lexer.GoloTokenId;
 import org.gololang.netbeans.parser.GoloParser;
 import static org.gololang.netbeans.project.GoloProject.*;
 import org.gololang.netbeans.structure.GoloFunctionElementHandle;
@@ -45,6 +38,7 @@ import org.gololang.netbeans.structure.ImportedMethodElementHandle;
 import org.gololang.netbeans.structure.KeywordElementHandle;
 import org.gololang.netbeans.structure.SimpleGoloElementHandle;
 import org.gololang.netbeans.structure.VariableElementHandle;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
 import org.netbeans.modules.csl.api.HtmlFormatter;
@@ -126,6 +120,114 @@ public class CompletionItem extends DefaultCompletionProposal {
         return super.getIcon();
     }
 
+    public static class MultiStringItem extends CompletionItem {
+        public MultiStringItem(int anchorOffset) {
+            super(null, anchorOffset);
+        }
+
+        @Override
+        public String getName() {
+            return GoloLanguageHierarchy.MULTILINE_DELIMITER;
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.OTHER;
+        }
+
+        @Override
+        public String getRhsHtml(HtmlFormatter formatter) {
+            formatter.appendHtml("multi-line string");
+            return formatter.getText();
+        }
+    
+        
+        
+        @Override
+        public ImageIcon getIcon() {
+            return new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
+        }
+
+        @Override
+        public Set<Modifier> getModifiers() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public ElementHandle getElement() {
+            // For completion documentation
+            return null;
+        }
+
+        @Override
+        public String getCustomInsertTemplate() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(getInsertPrefix());
+                sb.append("${cursor}"); // NOI18N
+                sb.append(GoloLanguageHierarchy.MULTILINE_DELIMITER);
+                return sb.toString();
+
+        }
+        
+        
+    }
+    
+    public static class DocumentationItem extends CompletionItem {
+        private final Token<GoloTokenId> token;
+        public DocumentationItem(Token<GoloTokenId> token, int anchorOffset) {
+            super(null, anchorOffset);
+            this.token = token;
+        }
+
+        @Override
+        public String getName() {
+            return GoloLanguageHierarchy.GOLODOC_DELIMITER;
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.OTHER;
+        }
+
+        @Override
+        public String getRhsHtml(HtmlFormatter formatter) {
+            formatter.appendHtml("golodoc");
+            return formatter.getText();
+        }
+    
+        
+        
+        @Override
+        public ImageIcon getIcon() {
+            return new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
+        }
+
+        @Override
+        public Set<Modifier> getModifiers() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public ElementHandle getElement() {
+            // For completion documentation
+            return null;
+        }
+
+        @Override
+        public String getCustomInsertTemplate() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(getInsertPrefix());
+                sb.append("\n");
+                sb.append("${cursor}"); // NOI18N
+                sb.append("\n");
+                sb.append(GoloLanguageHierarchy.GOLODOC_DELIMITER);
+                return sb.toString();
+
+        }
+        
+        
+    }
+    
     public static class KeywordItem extends CompletionItem {
 
         private final String keyword;

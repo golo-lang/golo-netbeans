@@ -293,8 +293,8 @@
             </module-dependencies>
             <public-packages/>
             <class-path-extension>
-                <runtime-relative-path>ext/golo-1.1.0.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/golo-1.1.0.jar</binary-origin>
+                <runtime-relative-path>ext/golo-1.2.0-SNAPSHOT.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/golo-1.2.0-SNAPSHOT.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/asm-4.2.jar</runtime-relative-path>

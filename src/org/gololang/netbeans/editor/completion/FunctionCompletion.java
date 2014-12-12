@@ -33,7 +33,7 @@ public class FunctionCompletion {
         String filter = completionRequest.getPrefix();
         Set<GoloFunction> functions = ((GoloParser.GoloParserResult)completionRequest.getParserResult()).getModule().getFunctions();
         for (GoloFunction fn : functions) {
-            if (!fn.getName().startsWith("__$$_")) {
+            if (!fn.getName().startsWith("__$$_") && fn.hasASTNode()) {
                 if (filter != null && fn.getName().startsWith(filter)) {
                     proposals.add(new CompletionItem.FunctionItem(fn, anchor, completionRequest.getParserResult()));
                 }

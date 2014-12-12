@@ -22,11 +22,7 @@ import org.gololang.netbeans.api.completion.util.CompletionContext;
 import java.util.Collection;
 import java.util.List;
 import org.gololang.netbeans.lexer.GoloLanguageHierarchy;
-import org.gololang.netbeans.lexer.GoloLexerUtils;
 import org.gololang.netbeans.lexer.GoloTokenId;
-import org.gololang.netbeans.parser.GoloParser;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.csl.api.CompletionProposal;
 
 /**

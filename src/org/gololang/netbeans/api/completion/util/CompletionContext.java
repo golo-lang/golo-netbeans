@@ -16,7 +16,14 @@
  */
 package org.gololang.netbeans.api.completion.util;
 
+import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
+import fr.insalyon.citi.golo.compiler.ir.GoloModule;
+import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
+import fr.insalyon.citi.golo.compiler.parser.GoloASTUtils;
+import java.util.Set;
+import org.gololang.netbeans.parser.GoloParser;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.openide.filesystems.FileObject;
 
@@ -68,6 +75,20 @@ public class CompletionContext {
         return sourceFile;
     }
     
-    
+    public boolean isAnchorInFunction() {
+        GoloModule module = ((GoloParser.GoloParserResult) parserResult).getModule();
+
+        Set<GoloFunction> functions = module.getFunctions();
+        for (GoloFunction fn : functions) {
+            if (!fn.getName().startsWith("__$$_") && fn.hasASTNode()) {
+                GoloASTNode astNode = fn.getASTNode();
+                OffsetRange range = GoloASTUtils.getRange(astNode, doc);
+                if (range.containsInclusive(anchor)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     
 }

@@ -23,7 +23,9 @@ import org.gololang.netbeans.parser.GoloParser;
 import org.gololang.netbeans.structure.GoloStructureScanner;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.csl.api.CodeCompletionHandler;
+import org.netbeans.modules.csl.api.KeystrokeHandler;
 import org.netbeans.modules.csl.api.StructureScanner;
+import org.netbeans.modules.csl.spi.CommentHandler;
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
 import org.netbeans.modules.csl.spi.LanguageRegistration;
 import org.netbeans.modules.parsing.spi.Parser;
@@ -70,5 +72,17 @@ public class GoloLanguage extends DefaultLanguageConfig {
     public CodeCompletionHandler getCompletionHandler() {
         return new CompletionHandler();
     }
+
+    @Override
+    public String getLineCommentPrefix() {
+        return "#";
+    }
+
+    @Override
+    public KeystrokeHandler getKeystrokeHandler() {
+        return super.getKeystrokeHandler(); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
 
 }

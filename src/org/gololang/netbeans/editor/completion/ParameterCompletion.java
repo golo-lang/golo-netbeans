@@ -43,7 +43,7 @@ public class ParameterCompletion {
         BaseDocument doc = (BaseDocument) completionRequest.getParserResult().getSnapshot().getSource().getDocument(true);
         FileObject fo = completionRequest.getSourceFile();
         for (GoloFunction fn : functions) {
-            if (!fn.getName().startsWith("__$$_")) {
+            if (!fn.getName().startsWith("__$$_") && fn.hasASTNode()) {
                 GoloASTNode astNode = fn.getASTNode();
                 OffsetRange range = GoloASTUtils.getRange(astNode, doc);
                 if (range.containsInclusive(anchor)) {

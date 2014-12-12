@@ -40,6 +40,8 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
     public static final String NUMBER_CATEGORY = "number";
     public static final String OPERATOR_CATEGORY = "operator";
     public static final String STRING_CATEGORY = "string";
+    public static final String GOLODOC_DELIMITER = "----"; 
+    public static final String MULTILINE_DELIMITER = "\"\"\""; 
     
     private static Collection<GoloTokenId> tokens;
     private static TreeMap<Integer, GoloTokenId> idToToken;

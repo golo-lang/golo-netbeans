@@ -46,7 +46,7 @@ public class VariableCompletion {
         Source source = completionRequest.getParserResult().getSnapshot().getSource();
         BaseDocument doc = (BaseDocument) source.getDocument(true);
         for (GoloFunction fn : functions) {
-            if (!fn.getName().startsWith("__$$_")) {
+            if (!fn.getName().startsWith("__$$_") && fn.hasASTNode()) {
                 GoloASTNode astNode = fn.getASTNode();
                 OffsetRange range = GoloASTUtils.getRange(astNode, doc);
                 if (range.containsInclusive(anchor)) {

@@ -44,9 +44,6 @@ import org.gololang.netbeans.structure.ImportedFieldElementHandle;
 import org.gololang.netbeans.structure.ImportedMethodElementHandle;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectInformation;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.Sources;
 import org.netbeans.modules.csl.api.CompletionProposal;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -78,8 +75,6 @@ public class ImportCompletion {
 
         Project owner = FileOwnerQuery.getOwner(fo);
 
-        Sources sources = ProjectUtils.getSources(owner);
-        ProjectInformation information = ProjectUtils.getInformation(owner);
         GoloClassLoader classLoader = null;//cp.getClassLoader(true);
         try {
             URLClassLoader primaryClassLoader;

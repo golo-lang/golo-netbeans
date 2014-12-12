@@ -26,7 +26,8 @@ import org.netbeans.modules.csl.api.OffsetRange;
  */
 public final class GoloASTUtils {
     
-    
+    private GoloASTUtils(){}
+
     public static OffsetRange getRange(GoloASTNode node, BaseDocument doc) {
 
         // Warning! The implicit class and some other nodes has line/column numbers below 1
