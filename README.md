@@ -1,7 +1,7 @@
 Golo-NetBeans
 =============
 
-NetBeans module to support the **Golo language**. The current version implements the syntax highlighting for **Golo 1.1.0**, project creation and project running.
+NetBeans module to support the **Golo language**. The current version implements the syntax highlighting for **Golo 2.0.0**, project creation and project running.
 
 ##How-to
 

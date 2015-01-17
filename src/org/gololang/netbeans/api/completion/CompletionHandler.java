@@ -48,17 +48,14 @@ import org.netbeans.modules.csl.spi.ParserResult;
  */
 public class CompletionHandler implements CodeCompletionHandler {
 
-    private String startingText = null;
-
     @Override
     public CodeCompletionResult complete(CodeCompletionContext completionContext) {
         ParserResult parserResult = completionContext.getParserResult();
         String prefix = completionContext.getPrefix();
-        if (prefix == null) {
-            prefix = startingText;
-        }
         // Documentation says that @NonNull is return from getPrefix() but it's not true
         // Invoking "this.^" makes the return value null
+        System.err.println("queryType = " + completionContext.getQueryType());
+        System.err.println("prefix = " + prefix);
         if (prefix == null) {
             prefix = "";
         }
@@ -81,10 +78,10 @@ public class CompletionHandler implements CodeCompletionHandler {
             if (noNeedToPropose(doc, lexOffset)) {
                 return CodeCompletionResult.NONE;
             }
-
             if (context.isAnchorInFunction()) {
-                if (startingTextMatchesWith(GoloLanguageHierarchy.MULTILINE_DELIMITER)) {
-                    CompletionProposal multiline = new CompletionItem.MultiStringItem(context.getAnchor());
+                String lastWord = getLastWord(prefix);
+                if (startingTextMatchesWith(lastWord, GoloLanguageHierarchy.MULTILINE_DELIMITER)) {
+                    CompletionProposal multiline = new CompletionItem.MultiStringItem(context.getAnchor() + prefix.lastIndexOf(lastWord));
                     return new DefaultCompletionResult(Arrays.asList(multiline), false);
                 }
                 collector.completeKeywords(context);
@@ -93,11 +90,20 @@ public class CompletionHandler implements CodeCompletionHandler {
                 collector.completeParameters(context);
                 collector.completeVariable(context);
             } else {
-                if (startingTextMatchesWith(GoloLanguageHierarchy.GOLODOC_DELIMITER)) {
+                
+                if (startingTextMatchesWith(prefix, GoloLanguageHierarchy.GOLODOC_DELIMITER)) {
                     collector.completeDocumentation(context);
                 } else {
-                    collector.completeKeywords(context);
+                    if (isInImportDeclaration(GoloLexerUtils.getPositionedSequence(doc, lexOffset))) {
+                        collector.completeImportModule(context);
+                    } else if (isInAugmentDeclaration(GoloLexerUtils.getPositionedSequence(doc, lexOffset))) {
+                        collector.completeAugmentation(context);
+                    } else {
+                        collector.completeKeywords(context);
+                    }
+
                 }
+                
             }
             List<CompletionProposal> listCompletionProposal = collector.getProposals();
             return new DefaultCompletionResult(listCompletionProposal, false);
@@ -105,8 +111,19 @@ public class CompletionHandler implements CodeCompletionHandler {
             doc.readUnlock();
         }
     }
+    
+    private String getLastWord(String prefix) {
+        String lastWord = prefix;
+        if (prefix != null && prefix.length() > 0) {
+            int lastWhitespace = prefix.lastIndexOf(" ");
+            if (lastWhitespace != -1) {
+                lastWord = prefix.substring(lastWhitespace + 1);
+            }
+        }
+        return lastWord;
+    }
 
-    private boolean startingTextMatchesWith(String match) {
+    private boolean startingTextMatchesWith(String startingText, String match) {
         return startingText != null && startingText.length() > 0 && match.startsWith(startingText);
     }
 
@@ -126,20 +143,32 @@ public class CompletionHandler implements CodeCompletionHandler {
         return false;
     }
 
-    private boolean isInVariableOrConstantDeclaration(TokenSequence<GoloTokenId> sequence) {
+    private boolean isInTypeDeclaration(TokenSequence<GoloTokenId> sequence, List<Integer> tokenOrdinals) {
         Token<GoloTokenId> previousToken = GoloLexerUtils.getPreviousToken(sequence);
-        if (GoloLexerUtils.isOfType(previousToken, Arrays.asList(GoloParserConstants.LET, GoloParserConstants.VAR))) {
+        if (GoloLexerUtils.isOfType(previousToken, tokenOrdinals)) {
             // new variable or constant declaration, so nothing to propose
             return true;
         }
         if (GoloLexerUtils.isOfType(previousToken, Arrays.asList(GoloParserConstants.IDENTIFIER))) {
             Token<GoloTokenId> previousPreviousToken = GoloLexerUtils.getPreviousToken(sequence);
-            if (GoloLexerUtils.isOfType(previousPreviousToken, Arrays.asList(GoloParserConstants.LET, GoloParserConstants.VAR))) {
+            if (GoloLexerUtils.isOfType(previousPreviousToken, tokenOrdinals)) {
                 // new variable or constant declaration, so nothing to propose
                 return true;
             }
         }
         return false;
+    }
+    
+    private boolean isInAugmentDeclaration(TokenSequence<GoloTokenId> sequence) {
+        return isInTypeDeclaration(sequence, Arrays.asList(GoloParserConstants.WITH));
+    }
+    
+    private boolean isInImportDeclaration(TokenSequence<GoloTokenId> sequence) {
+        return isInTypeDeclaration(sequence, Arrays.asList(GoloParserConstants.IMPORT));
+    }
+    
+    private boolean isInVariableOrConstantDeclaration(TokenSequence<GoloTokenId> sequence) {
+        return isInTypeDeclaration(sequence, Arrays.asList(GoloParserConstants.LET, GoloParserConstants.VAR));
     }
 
     @Override
@@ -153,29 +182,32 @@ public class CompletionHandler implements CodeCompletionHandler {
     }
 
     @Override
-    public String getPrefix(ParserResult pr, int i, boolean bln) {
-        return null;
+    public String getPrefix(ParserResult pr, int caret, boolean bln) {
+        String text = pr.getSnapshot().getText().toString();
+        String before = text.substring(0, caret);
+        int index = before.lastIndexOf("\n");
+        String start = text.substring(index + 1, caret);
+        String prefix = null;
+        int startInput = -1;
+        if (start != null && start.length() > 0) {
+            for (int i = 0; i < start.length(); i++) {
+                char carac = start.charAt(i);
+                if (!Character.isWhitespace(carac)) {
+                    startInput = i;
+                    break;
+                }
+            }
+            if (startInput != -1) {
+                prefix = start.substring(startInput);
+            }
+        }
+        return prefix;
     }
 
     @Override
     public QueryType getAutoQuery(JTextComponent jtc, String typedText) {
-        String text = jtc.getText();
-        int dot = jtc.getCaret().getDot();
-        String before = text.substring(0, dot);
-        int i = before.lastIndexOf("\n");
-        String start = text.substring(i + 1, dot);
-        startingText = null;
-        if (start != null && start.length() > 0) {
-            int lastWhitespace = start.lastIndexOf(" ");
-            if (lastWhitespace != -1 && lastWhitespace < start.length() - 1) {
-                startingText = start.substring(lastWhitespace + 1);
-            } else {
-                startingText = start;
-            }
-        }
-
         char c = typedText.charAt(0);
-
+        
         if (c == '.' || Character.isWhitespace(c)) {
             // no proposals after '.', 'and whitespaces because it's not smart for instance
             return QueryType.NONE;
@@ -199,4 +231,5 @@ public class CompletionHandler implements CodeCompletionHandler {
     public ParameterInfo parameters(ParserResult pr, int i, CompletionProposal cp) {
         return ParameterInfo.NONE;
     }
+    
 }

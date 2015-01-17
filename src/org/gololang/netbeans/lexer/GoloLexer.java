@@ -19,7 +19,6 @@ package org.gololang.netbeans.lexer;
 
 import fr.insalyon.citi.golo.compiler.parser.GoloParserTokenManager;
 import fr.insalyon.citi.golo.compiler.parser.Token;
-import fr.insalyon.citi.golo.compiler.parser.TokenMgrError;
 import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 

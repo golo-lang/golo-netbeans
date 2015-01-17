@@ -33,6 +33,8 @@ public class ProposalsCollector {
     private final ParameterCompletion parameterCompletion;
     private final VariableCompletion variableCompletion;
     private final DocumentationCompletion documentationCompletion;
+    private final ModuleCompletion moduleCompletion;
+    private final NamedAugmentationCompletion namedAugmentationCompletion;
     
     public ProposalsCollector() {
         proposals = new ArrayList<>();
@@ -42,6 +44,8 @@ public class ProposalsCollector {
         parameterCompletion = new ParameterCompletion();
         variableCompletion = new VariableCompletion();
         documentationCompletion = new DocumentationCompletion();
+        moduleCompletion = new ModuleCompletion();
+        namedAugmentationCompletion = new NamedAugmentationCompletion();
     }
     
     public void completeKeywords(CompletionContext completionRequest) {
@@ -70,5 +74,13 @@ public class ProposalsCollector {
 
     public void completeDocumentation(CompletionContext context) {
         documentationCompletion.complete(proposals, context, context.getAnchor());
+    }
+    
+    public void completeImportModule(CompletionContext context) {
+        moduleCompletion.complete(proposals, context, context.getAnchor());
+    }
+
+    public void completeAugmentation(CompletionContext context) {
+        namedAugmentationCompletion.complete(proposals, context, context.getAnchor());
     }
 }

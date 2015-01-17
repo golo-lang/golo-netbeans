@@ -127,6 +127,18 @@ class GenerateStructureVisitor implements GoloParserVisitor {
     }, node, data);
     return data;
   }
+  
+    @Override
+    public Object visit(ASTNamedAugmentationDeclaration node, Object data) {
+        processNode(new ItemCreator<ASTNamedAugmentationDeclaration>() {
+      @Override
+      public StructureItem create(ASTNamedAugmentationDeclaration node, List<? extends StructureItem> childrenItems) {
+        return new NamedAugmentationStructureItem(node, source, childrenItems);
+      }
+    }, node, data);
+    return data;
+    }
+
 
   @Override
   public Object visit(ASTFunctionDeclaration node, Object data) {

@@ -18,9 +18,11 @@ package org.gololang.netbeans.editor.completion;
 
 import fr.insalyon.citi.golo.compiler.ir.CollectionLiteral;
 import fr.insalyon.citi.golo.compiler.parser.GoloParserConstants;
+import java.util.ArrayList;
 import org.gololang.netbeans.api.completion.util.CompletionContext;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import org.gololang.netbeans.lexer.GoloLanguageHierarchy;
 import org.gololang.netbeans.lexer.GoloTokenId;
 import org.netbeans.modules.csl.api.CompletionProposal;
@@ -33,9 +35,25 @@ public class KeywordCompletion {
 
     void complete(List<CompletionProposal> proposals, CompletionContext completionRequest, int anchor) {
         String filter = completionRequest.getPrefix();
-        Collection<GoloTokenId> tokens = GoloLanguageHierarchy.getTokens();
-        for (GoloTokenId token : tokens) {
-            if (GoloLanguageHierarchy.KEYWORD_CATGEORY.equalsIgnoreCase(token.primaryCategory())) {
+        Set<GoloTokenId> tokenIds = GoloTokenId.getLanguage().tokenCategoryMembers(GoloLanguageHierarchy.KEYWORD_CATGEORY);
+        GoloTokenId tokenAugment = GoloTokenId.getLanguage().tokenId(GoloParserConstants.AUGMENT);
+        // add pimp keyword
+        List<GoloTokenId> keywords = new ArrayList<>(tokenIds);
+        keywords.add(new GoloTokenId("pimp", GoloLanguageHierarchy.KEYWORD_CATGEORY, tokenAugment.ordinal()));
+        
+        // rename namedaugmentation
+        GoloTokenId tokenNamedAugmentation = null;
+        for (GoloTokenId keyword : keywords) {
+            if (keyword.ordinal() == GoloParserConstants.NAMEDAUGMENTATION) {
+                tokenNamedAugmentation = keyword;
+            }
+        }
+        if (tokenNamedAugmentation != null) {
+            keywords.remove(tokenNamedAugmentation);
+            keywords.add(new GoloTokenId("augmentation", tokenNamedAugmentation.primaryCategory(), tokenNamedAugmentation.ordinal()));
+        }
+        
+        for (GoloTokenId token : keywords) {
                 if (token.ordinal() == GoloParserConstants.COLL_START) {
                     CollectionLiteral.Type[] values = CollectionLiteral.Type.values();
                     for (CollectionLiteral.Type value : values) {
@@ -46,7 +64,6 @@ public class KeywordCompletion {
                 } else if (token.name().toLowerCase().startsWith(filter.toLowerCase())) {
                     proposals.add(new CompletionItem.KeywordItem(token.name().toLowerCase(), token.ordinal(), null, anchor, completionRequest.getParserResult()));
                 }
-            }
         }
     }
     

@@ -16,7 +16,6 @@
  */
 package org.gololang.netbeans.editor.completion;
 
-import fr.insalyon.citi.golo.compiler.ir.GoloElement;
 import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
 import fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar;
 import fr.insalyon.citi.golo.compiler.parser.GoloParserConstants;
@@ -36,6 +35,7 @@ import org.gololang.netbeans.structure.GoloParameterElementHandle;
 import org.gololang.netbeans.structure.ImportedFieldElementHandle;
 import org.gololang.netbeans.structure.ImportedMethodElementHandle;
 import org.gololang.netbeans.structure.KeywordElementHandle;
+import org.gololang.netbeans.structure.ModuleElementHandle;
 import org.gololang.netbeans.structure.SimpleGoloElementHandle;
 import org.gololang.netbeans.structure.VariableElementHandle;
 import org.netbeans.api.lexer.Token;
@@ -166,7 +166,6 @@ public class CompletionItem extends DefaultCompletionProposal {
                 sb.append("${cursor}"); // NOI18N
                 sb.append(GoloLanguageHierarchy.MULTILINE_DELIMITER);
                 return sb.toString();
-
         }
         
         
@@ -306,6 +305,90 @@ public class CompletionItem extends DefaultCompletionProposal {
         }
     }
 
+    public static class ModuleItem extends SimpleElementItem {
+
+
+        public ModuleItem(SimpleGoloElementHandle element, int anchorOffset) {
+            super(element, anchorOffset);
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.MODULE;
+        }
+
+        @Override
+        public ImageIcon getIcon() {
+            return new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
+        }
+
+        @Override
+        public String getRhsHtml(HtmlFormatter formatter) {
+            SimpleGoloElementHandle element = (SimpleGoloElementHandle) getElement();
+            formatter.appendHtml("<i>");
+            formatter.appendText(element.getFromClassName());
+            formatter.appendHtml("</i>");
+            return formatter.getText();
+        }
+        
+        @Override
+        public Set<Modifier> getModifiers() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public boolean isSmart() {
+            return true;
+        }
+
+        
+    }
+    
+    public static class NamedAugmentationItem extends SimpleElementItem {
+        private final String textToInsert;
+
+
+        public NamedAugmentationItem(SimpleGoloElementHandle element, int anchorOffset, String textToInsert) {
+            super(element, anchorOffset);
+            this.textToInsert = textToInsert;
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.CLASS;
+        }
+
+        @Override
+        public ImageIcon getIcon() {
+            return new ImageIcon(ImageUtilities.loadImage(GOLO_ICON));
+        }
+
+        @Override
+        public String getRhsHtml(HtmlFormatter formatter) {
+            SimpleGoloElementHandle element = (SimpleGoloElementHandle) getElement();
+            formatter.appendHtml("<i>");
+            formatter.appendText(element.getFromClassName());
+            formatter.appendHtml("</i>");
+            return formatter.getText();
+        }
+        
+        @Override
+        public Set<Modifier> getModifiers() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public boolean isSmart() {
+            return true;
+        }
+
+        @Override
+        public String getInsertPrefix() {
+            return textToInsert;
+        }
+        
+    }
+    
     public static class FunctionItem extends CompletionItem {
 
         private final GoloFunction function;

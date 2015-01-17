@@ -57,7 +57,9 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
         }
     }
     if (startToken != null) {
-        importsFolds.add(new OffsetRange(startToken.next.startOffset, endToken.endOffset));
+        if (startToken.next.startOffset <= endToken.endOffset) {
+            importsFolds.add(new OffsetRange(startToken.next.startOffset, endToken.endOffset));
+        }
     }
     node.childrenAccept(this, data);
     return data;
@@ -264,6 +266,12 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
 
     @Override
     public Object visit(ASTDecoratorDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTNamedAugmentationDeclaration node, Object data) {
         node.childrenAccept(this, data);
         return data;
     }

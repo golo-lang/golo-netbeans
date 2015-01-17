@@ -87,6 +87,8 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                 case "THEN" :
                 case "OTHERWISE" :
                 case "AUGMENT" :
+                case "NAMEDAUGMENTATION":
+                case "WITH" :
                 case "COLL_START" :                
                 case "NULL" :
                 case "BREAK" :

@@ -21,20 +21,14 @@
 package org.gololang.netbeans.editor.completion;
 
 import fr.insalyon.citi.golo.compiler.GoloClassLoader;
-import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import fr.insalyon.citi.golo.compiler.ir.ModuleImport;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import static java.lang.reflect.Modifier.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.gololang.netbeans.RunGoloProject;
@@ -46,7 +40,6 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.csl.api.CompletionProposal;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -58,6 +51,10 @@ public class ImportCompletion {
     void complete(List<CompletionProposal> proposals, CompletionContext context, int anchor) {
         GoloParserResult parserResult = (GoloParserResult) context.getParserResult();
         String filter = context.getPrefix();
+
+        FileObject fo = context.getSourceFile();
+
+        Project owner = FileOwnerQuery.getOwner(fo);
         String rootDir = RunGoloProject.getGoloRootDir();
         List<String> classpath = new ArrayList<>();
         classpath.add(".");
@@ -71,18 +68,7 @@ public class ImportCompletion {
             classpath.add(jarFile.getAbsolutePath());
         }
 
-        FileObject fo = context.getSourceFile();
-
-        Project owner = FileOwnerQuery.getOwner(fo);
-
-        GoloClassLoader classLoader = null;//cp.getClassLoader(true);
-        try {
-            URLClassLoader primaryClassLoader;
-            primaryClassLoader = primaryClassLoader(classpath);
-            classLoader = new GoloClassLoader(primaryClassLoader);
-        } catch (MalformedURLException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        GoloClassLoader classLoader = context.getGoloClassLoader(classpath);
 
         if (classLoader == null) {
             return;
@@ -90,7 +76,7 @@ public class ImportCompletion {
 
         Map<Class<?>, FileObject> goloSources;
         try {
-            goloSources = loadGoloFiles(owner.getProjectDirectory().getPath(), classLoader);
+            goloSources = context.loadGoloFiles(owner.getProjectDirectory().getPath(), classLoader);
             for (ModuleImport moduleImport : parserResult.getModule().getImports()) {
 //                if (moduleImport.hasASTNode()) {
 
@@ -128,39 +114,6 @@ public class ImportCompletion {
         } catch (Throwable ex) {
 //            Exceptions.printStackTrace(ex);
         }
-    }
-
-    private static URLClassLoader primaryClassLoader(List<String> classpath) throws MalformedURLException {
-        URL[] urls = new URL[classpath.size()];
-        int index = 0;
-        for (String element : classpath) {
-            urls[index] = new File(element).toURI().toURL();
-            index = index + 1;
-        }
-        return new URLClassLoader(urls);
-    }
-
-    private static Map<Class<?>, FileObject> loadGoloFiles(String goloFile, GoloClassLoader loader) throws Throwable {
-        Map<Class<?>, FileObject> result = new HashMap<>();
-        File file = new File(goloFile);
-        if (!file.exists()) {
-            System.out.println("Error: " + file.getAbsolutePath() + " does not exist.");
-        } else if (file.isDirectory()) {
-            File[] directoryFiles = file.listFiles();
-            if (directoryFiles != null) {
-                for (File directoryFile : directoryFiles) {
-                    result.putAll(loadGoloFiles(directoryFile.getAbsolutePath(), loader));
-                }
-            }
-        } else if (file.getName().endsWith(".golo")) {
-            try (FileInputStream in = new FileInputStream(file)) {
-                Class<?> loadedClass = loader.load(file.getName(), in);
-                result.put(loadedClass, FileUtil.toFileObject(file));
-            } catch (GoloCompilationException e) {
-//                Exceptions.printStackTrace(e);
-            }
-        }
-        return result;
     }
 
     private static String[] imports(Class<?> callerClass) {
