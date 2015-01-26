@@ -48,12 +48,13 @@ public class ModuleCompletion {
             goloSources = context.loadGoloFiles(context.getSourceFile(), classLoader);
         } catch (Throwable t) {
         }
+        
         if (goloSources != null) {
-            for (Class<?> keySet : goloSources.keySet()) {
-                FileObject goloFile = goloSources.get(keySet);
+            for (Class<?> moduleName : goloSources.keySet()) {
+                FileObject goloFile = goloSources.get(moduleName);
                 if (goloFile != context.getSourceFile()) {
-                    if (goloFile.getName().toLowerCase().startsWith(filter.toLowerCase())) {
-                        proposals.add(new CompletionItem.ModuleItem(new SimpleGoloElementHandle(goloFile, goloFile.getNameExt(), keySet.getSimpleName(), ElementKind.MODULE, null), anchor));
+                    if (moduleName.getSimpleName().toLowerCase().startsWith(filter.toLowerCase())) {
+                        proposals.add(new CompletionItem.ModuleItem(new SimpleGoloElementHandle(goloFile, goloFile.getNameExt(), moduleName.getSimpleName(), ElementKind.MODULE, null), anchor));
                     }
                 }
             }

@@ -54,8 +54,6 @@ public class CompletionHandler implements CodeCompletionHandler {
         String prefix = completionContext.getPrefix();
         // Documentation says that @NonNull is return from getPrefix() but it's not true
         // Invoking "this.^" makes the return value null
-        System.err.println("queryType = " + completionContext.getQueryType());
-        System.err.println("prefix = " + prefix);
         if (prefix == null) {
             prefix = "";
         }
@@ -90,7 +88,6 @@ public class CompletionHandler implements CodeCompletionHandler {
                 collector.completeParameters(context);
                 collector.completeVariable(context);
             } else {
-                
                 if (startingTextMatchesWith(prefix, GoloLanguageHierarchy.GOLODOC_DELIMITER)) {
                     collector.completeDocumentation(context);
                 } else {
@@ -190,15 +187,10 @@ public class CompletionHandler implements CodeCompletionHandler {
         String prefix = null;
         int startInput = -1;
         if (start != null && start.length() > 0) {
-            for (int i = 0; i < start.length(); i++) {
-                char carac = start.charAt(i);
-                if (!Character.isWhitespace(carac)) {
-                    startInput = i;
-                    break;
-                }
-            }
-            if (startInput != -1) {
-                prefix = start.substring(startInput);
+            startInput = start.lastIndexOf(" ");
+            
+            if (startInput != -1 && startInput + 1 < start.length()) {
+                prefix = start.substring(startInput + 1);
             }
         }
         return prefix;
