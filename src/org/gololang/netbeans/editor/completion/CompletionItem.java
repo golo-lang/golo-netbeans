@@ -306,10 +306,12 @@ public class CompletionItem extends DefaultCompletionProposal {
     }
 
     public static class ModuleItem extends SimpleElementItem {
+        private final Class<?> module;
 
 
-        public ModuleItem(SimpleGoloElementHandle element, int anchorOffset) {
+        public ModuleItem(SimpleGoloElementHandle element, Class<?> module, int anchorOffset) {
             super(element, anchorOffset);
+            this.module = module;
         }
 
         @Override
@@ -341,7 +343,16 @@ public class CompletionItem extends DefaultCompletionProposal {
             return true;
         }
 
-        
+        @Override
+        public String getCustomInsertTemplate() {
+            if (module != null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(module.getName());
+                sb.append("${cursor}"); // NOI18N
+                return sb.toString();
+            }
+            return super.getCustomInsertTemplate();
+        }
     }
     
     public static class NamedAugmentationItem extends SimpleElementItem {

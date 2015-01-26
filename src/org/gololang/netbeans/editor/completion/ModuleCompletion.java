@@ -54,7 +54,7 @@ public class ModuleCompletion {
                 FileObject goloFile = goloSources.get(moduleName);
                 if (goloFile != context.getSourceFile()) {
                     if (moduleName.getSimpleName().toLowerCase().startsWith(filter.toLowerCase())) {
-                        proposals.add(new CompletionItem.ModuleItem(new SimpleGoloElementHandle(goloFile, goloFile.getNameExt(), moduleName.getSimpleName(), ElementKind.MODULE, null), anchor));
+                        proposals.add(new CompletionItem.ModuleItem(new SimpleGoloElementHandle(goloFile, goloFile.getNameExt(), moduleName.getSimpleName(), ElementKind.MODULE, null), moduleName, anchor));
                     }
                 }
             }

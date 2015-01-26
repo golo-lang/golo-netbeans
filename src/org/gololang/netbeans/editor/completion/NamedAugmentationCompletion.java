@@ -66,7 +66,7 @@ public class NamedAugmentationCompletion {
                     if (!goloFile.equals(fo)) {
                         Class<?>[] declaredClasses = goloClass.getDeclaredClasses();
                         for (Class<?> declaredClasse : declaredClasses) {
-                            String classSimpleName = declaredClasse.getSimpleName();
+                            String classSimpleName = declaredClasse.getName();
                             String augmentation = classSimpleName.substring(classSimpleName.lastIndexOf("$") + 1);
                             if (augmentation.toLowerCase().startsWith(filter.toLowerCase())) {
                                 boolean isImported = isModuleImported(parserResult.getModule(), goloClass);
