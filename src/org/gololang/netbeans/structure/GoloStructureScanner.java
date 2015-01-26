@@ -107,9 +107,7 @@ public class GoloStructureScanner implements StructureScanner {
                 }
                 lastTokenId = id;
             }
-            } finally {
-                ((BaseDocument)doc).readUnlock();
-            }
+
             
             // Code blocks and imports
             GoloParser.GoloParserResult result = (GoloParser.GoloParserResult) pr;
