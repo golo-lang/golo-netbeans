@@ -17,10 +17,12 @@
 
 package org.gololang.netbeans;
 
+import org.gololang.netbeans.api.completion.CompletionHandler;
 import org.gololang.netbeans.lexer.GoloTokenId;
 import org.gololang.netbeans.parser.GoloParser;
 import org.gololang.netbeans.structure.GoloStructureScanner;
 import org.netbeans.api.lexer.Language;
+import org.netbeans.modules.csl.api.CodeCompletionHandler;
 import org.netbeans.modules.csl.api.StructureScanner;
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig;
 import org.netbeans.modules.csl.spi.LanguageRegistration;
@@ -63,4 +65,15 @@ public class GoloLanguage extends DefaultLanguageConfig {
     public boolean hasStructureScanner() {
         return true;
     }
+
+    @Override
+    public CodeCompletionHandler getCompletionHandler() {
+        return new CompletionHandler();
+    }
+
+    @Override
+    public String getLineCommentPrefix() {
+        return "#";
+    }
+
 }

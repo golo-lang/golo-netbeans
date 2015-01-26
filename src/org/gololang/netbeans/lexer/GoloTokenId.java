@@ -35,7 +35,7 @@ public class GoloTokenId implements TokenId {
         return new GoloLanguageHierarchy().language();
     }
     
-    GoloTokenId(
+    public GoloTokenId(
             String name,
             String primaryCategory,
             int id) {

@@ -32,6 +32,17 @@ import org.openide.util.Exceptions;
 
 public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
 
+    public static final String KEYWORD_CATGEORY = "keyword";
+    public static final String IDENTIFIER_CATEGORY = "identifier";
+    public static final String COMMENT_CATEGORY = "comment";
+    public static final String WHITESPACE_CATEGORY = "whitespace";
+    public static final String CHARACTER_CATEGORY = "character";
+    public static final String NUMBER_CATEGORY = "number";
+    public static final String OPERATOR_CATEGORY = "operator";
+    public static final String STRING_CATEGORY = "string";
+    public static final String GOLODOC_DELIMITER = "----"; 
+    public static final String MULTILINE_DELIMITER = "\"\"\""; 
+    
     private static Collection<GoloTokenId> tokens;
     private static TreeMap<Integer, GoloTokenId> idToToken;
 
@@ -51,8 +62,10 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
             switch (field.getName()) {
                 case "EOF" : 
                 case "NEWLINE" : 
-                    category = "whitespace";
+                    category = WHITESPACE_CATEGORY;
                     break;
+                    
+                case "ESCAPE" :
                 case "MODULE" :
                 case "IMPORT" : 
                 case "FUNCTION" : 
@@ -73,43 +86,56 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
                 case "MATCH" :
                 case "THEN" :
                 case "OTHERWISE" :
-                case "PIMP" :
-                case "NUL" :
+                case "AUGMENT" :
+                case "NAMEDAUGMENTATION":
+                case "WITH" :
+                case "COLL_START" :                
+                case "NULL" :
+                case "BREAK" :
+                case "CONTINUE" :
+                case "STRUCT" :
+                case "INVOCATION" : 
+                case "DECORATOR" :
                 case "TRUE" :
                 case "FALSE" :
                 case "VAR" :
                 case "LET" :
-                    category = "keyword";
+                    category = KEYWORD_CATGEORY;
                     break;
 
                 case "NUMBER" :
                 case "LONG_NUMBER" : 
                 case "FLOATING_NUMBER" :
                 case "FLOAT" : 
-                    category = "number";
+                    category = NUMBER_CATEGORY;
                     break;
 
                 case "IDENTIFIER" :
+                case "FUNREF" :
                 case "CLASSREF" :
-                    category = "identifier";
+                    category = IDENTIFIER_CATEGORY;
                     break;
 
                 case "ASSOCIATIVE_OPERATOR" :
                 case "COMMUTATIVE_OPERATOR" : 
                 case "UNARY_OPERATOR" : 
-                    category = "operator";
+                    category = OPERATOR_CATEGORY;
                     break;
 
+                case "MULTI_STRING" :                    
                 case "STRING" :
-                    category = "string";
+                    category = STRING_CATEGORY;
                     break;
 
+                case "LETTER" :
+                case "ID_REST" :
                 case "CHAR" :
-                    category = "character";
+                    category = CHARACTER_CATEGORY;
                     break;
 
+                case "DOCUMENTATION" :
                 case "COMMENT" :
-                    category = "comment";
+                    category = COMMENT_CATEGORY;
                     break;
 
                 default :
@@ -156,12 +182,18 @@ public class GoloLanguageHierarchy extends LanguageHierarchy<GoloTokenId> {
 
     @Override
     protected synchronized Collection<GoloTokenId> createTokenIds() {
+        return getTokens();
+    }
+
+    public static synchronized Collection<GoloTokenId> getTokens() {
         if (tokens == null) {
             init();
         }
         return tokens;
     }
 
+    
+    
     @Override
     protected synchronized Lexer<GoloTokenId> createLexer(LexerRestartInfo<GoloTokenId> info) {
         return new GoloLexer(info);

@@ -57,7 +57,9 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
         }
     }
     if (startToken != null) {
-        importsFolds.add(new OffsetRange(startToken.next.startOffset, endToken.endOffset));
+        if (startToken.next.startOffset <= endToken.endOffset) {
+            importsFolds.add(new OffsetRange(startToken.next.startOffset, endToken.endOffset));
+        }
     }
     node.childrenAccept(this, data);
     return data;
@@ -71,12 +73,6 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTImportDeclaration node, Object data) {
-    node.childrenAccept(this, data);
-    return data;
-  }
-
-  @Override
-  public Object visit(ASTPimpDeclaration node, Object data) {
     node.childrenAccept(this, data);
     return data;
   }
@@ -231,4 +227,52 @@ class GenerateFoldsVisitor implements GoloParserVisitor {
     node.childrenAccept(this, data);
     return data;
   }
+
+    @Override
+    public Object visit(ASTStructDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTAugmentDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTContinue node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTBreak node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTCollectionLiteral node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTAnonymousFunctionInvocation node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTDecoratorDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
+
+    @Override
+    public Object visit(ASTNamedAugmentationDeclaration node, Object data) {
+        node.childrenAccept(this, data);
+        return data;
+    }
 }

@@ -38,7 +38,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.swing.event.ChangeListener;
@@ -53,7 +52,6 @@ import org.netbeans.modules.parsing.spi.ParserResultTask;
 import org.netbeans.modules.parsing.spi.SourceModificationEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 
 
 /**
@@ -174,17 +172,13 @@ public class GoloParser extends Parser {
       try {
         parserTaskResult.get(2, TimeUnit.SECONDS);
       }
-      catch (ExecutionException ex) {
+      catch (ExecutionException | InterruptedException | CancellationException ex) {
       }
       catch (TimeoutException ex) {
         if (task instanceof ParserResultTask) {
           ParserResultTask theTask = (ParserResultTask) task;
           theTask.cancel();
         }
-      }
-      catch (InterruptedException ex) {
-      }
-      catch (CancellationException ex) {
       }
     }
 
@@ -199,10 +193,7 @@ public class GoloParser extends Parser {
           !parserTaskResult.isCancelled()) {
         try {
           return parserTaskResult.get(0, TimeUnit.SECONDS);
-        } catch (InterruptedException ex) {
-        } catch (ExecutionException ex) {
-        } catch (CancellationException ex) {
-        } catch (TimeoutException ex) {          
+        } catch (InterruptedException | ExecutionException | CancellationException | TimeoutException ex) {          
         }
       }
       return null;
@@ -239,7 +230,7 @@ public class GoloParser extends Parser {
       int start = 0;
       int end = 0;
 
-      Token token = p.getToken();
+      Token token = p.getFirstToken();
       if (token != null) {
         start = token.startOffset;
         end = token.endOffset;
@@ -267,9 +258,9 @@ public class GoloParser extends Parser {
 
 
   public class GoloParserResult extends ParserResult {
-    private ASTCompilationUnit compilationUnit;
-    private GoloModule module;
-    private List<? extends Error> errors = new ArrayList<DefaultError>();
+    private final ASTCompilationUnit compilationUnit;
+    private final GoloModule module;
+    private List<? extends Error> errors = new ArrayList<>();
 
     GoloParserResult (ASTCompilationUnit compilationUnit, GoloModule module, List<? extends Error> errors) {
       super (snapshot);
