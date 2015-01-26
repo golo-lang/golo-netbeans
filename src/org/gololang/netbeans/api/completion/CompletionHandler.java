@@ -185,14 +185,20 @@ public class CompletionHandler implements CodeCompletionHandler {
         int index = before.lastIndexOf("\n");
         String start = text.substring(index + 1, caret);
         String prefix = null;
-        int startInput = -1;
+        
         if (start != null && start.length() > 0) {
-            startInput = start.lastIndexOf(" ");
+            int startInput = start.lastIndexOf(" ");
             
             if (startInput != -1 && startInput + 1 < start.length()) {
                 prefix = start.substring(startInput + 1);
+            } else {
+                if (startInput != start.length() - 1) {
+                    prefix = start;
+                }
+                
             }
         }
+        
         return prefix;
     }
 
