@@ -94,7 +94,7 @@ public class NamedAugmentationCompletion {
     private boolean isModuleImported(GoloModule module, Class<?> clazz) {
         for (ModuleImport moduleImport : module.getImports()) {
             String importClassName = moduleImport.getPackageAndClass().toString();
-            if (importClassName.equals(clazz.getSimpleName())) {
+            if (importClassName.equals(clazz.getName())) {
                 return true;
             }
         }
