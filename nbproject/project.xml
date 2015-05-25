@@ -92,9 +92,9 @@
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.39.2.2</specification-version>
-		    </run-dependency>
-		</dependency>
-		<dependency>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.editor.bracesmatching</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -302,8 +302,8 @@
             </module-dependencies>
             <public-packages/>
             <class-path-extension>
-                <runtime-relative-path>ext/golo-2.0.0-SNAPSHOT.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/golo-2.0.0-SNAPSHOT.jar</binary-origin>
+                <runtime-relative-path>ext/golo-2.1.0.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/golo-2.1.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/asm-4.2.jar</runtime-relative-path>
